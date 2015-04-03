@@ -1,0 +1,18 @@
+development:
+  sessions:
+    default:
+      hosts:
+        - 127.0.0.1:27017
+      database: unteekuh
+test:
+  sessions:
+    default:
+      hosts:
+        - 127.0.0.1:27017
+      database: unteekuh_test
+production:
+  sessions:
+    default:
+      hosts:
+        - 127.0.0.1:27017
+      database: unteekuh
