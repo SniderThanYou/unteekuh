@@ -45,3 +45,4 @@ group :development, :test do
 end
 
 gem 'devise'
+gem 'state_machine'
