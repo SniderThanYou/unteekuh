@@ -24,5 +24,5 @@ class Player
   field :market_level, type: Integer, default: 0
   field :monarchy_level, type: Integer, default: 0
 
-  embedded_in :game
+  belongs_to :game
 end

@@ -1,8 +1,9 @@
 # unteekuh
 API must haves:
-log in
-create new game
-add player to game (and assign color)
+~~log in~~
+~~create new game~~
+~~add player to game~~
+assign player color
 start game
 get board current state
 rondel actions:

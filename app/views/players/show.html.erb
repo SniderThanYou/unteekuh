@@ -1,8 +1,18 @@
 <p id="notice"><%= notice %></p>
 
 <p>
+  <strong>User:</strong>
+  <%= @player.user_id %>
+</p>
+
+<p>
   <strong>Name:</strong>
   <%= @player.name %>
+</p>
+
+<p>
+  <strong>Color:</strong>
+  <%= @player.color %>
 </p>
 
 <%= link_to 'Edit', edit_player_path(@player) %> |
