@@ -14,10 +14,13 @@ class Unteekuh.Views.Players.PlayerView extends Backbone.View
 
     return false
 
+  viewModel : ->
+    $.extend({inPlayerSignup: @options.inPlayerSignup}, @model.attributes)
+
   render: ->
     self = this
 
-    $(@el).html(@template(@model.toJSON()))
+    $(@el).html(@template(@viewModel()))
     @$('#colorpicker').minicolors({
       hide: ->
         self.model.save({color: this.value})

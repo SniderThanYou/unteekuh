@@ -12,7 +12,7 @@ class Unteekuh.Views.Players.IndexView extends Backbone.View
     @options.players.each(@addOne)
 
   addOne: (player) =>
-    view = new Unteekuh.Views.Players.PlayerView({model : player})
+    view = new Unteekuh.Views.Players.PlayerView({model : player, inPlayerSignup: @options.inPlayerSignup})
     @$("tbody").append(view.render().el)
 
   render: =>

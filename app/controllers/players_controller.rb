@@ -39,6 +39,7 @@ class PlayersController < ApplicationController
     @game = Game.find(player_params['game_id'])
     @player = Player.find(player_params['id'])
 
+    raise 'game has started' unless @game.player_signup?
     raise 'you can not edit other players' unless @player.user_id == current_user.id
 
     respond_to do |format|
@@ -55,6 +56,8 @@ class PlayersController < ApplicationController
   # DELETE /players/1
   # DELETE /players/1.json
   def destroy
+    raise 'game has started' unless @player.game.player_signup?
+
     @player.destroy
     respond_to do |format|
       format.html { redirect_to players_url, notice: 'Player was successfully destroyed.' }

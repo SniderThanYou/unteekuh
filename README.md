@@ -1,13 +1,16 @@
-API must haves:
 * ~~log in~~
 * ~~create new game~~
 * ~~add player to game~~
 * ~~assign player color~~
-* start game
+* select faction?
+* ~~start game~~
   * ~~disable adding players~~
-  * disable removing players
-  * disable setting player color
+  * ~~disable removing players~~
+  * ~~disable setting player color~~
+  * create initial board state
+    * depends on number of players
 * get board current state
+* draw board
 * rondel actions:
   * iron
   * marble

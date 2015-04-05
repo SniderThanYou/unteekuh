@@ -1,5 +1,11 @@
 <td><%= name %></td>
-<td><input type="hidden" id="colorpicker" value="<%= color %>"></td>
+<td>
+    <%if (inPlayerSignup) { %>
+    <input type="hidden" id="colorpicker" value="<%= color %>">
+    <% } else { %>
+    <div style="display: inline-block; width: 30px; height: 21px; background-color: <%= color %>"></div>
+    <% } %>
+</td>
 <td><%= gold %></td>
 <td><%= marble %></td>
 <td><%= iron %></td>
@@ -17,4 +23,8 @@
 <td><%= market_level %></td>
 <td><%= monarchy_level %></td>
 
-<td><a href="#/<%= id %>/destroy" class="destroy">Destroy</a></td>
+<td>
+  <%if (inPlayerSignup) { %>
+  <a href="#/<%= id %>/destroy" class="destroy">Destroy</a>
+  <% } %>
+</td>
