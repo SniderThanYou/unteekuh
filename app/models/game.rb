@@ -8,7 +8,6 @@ class Game
 
   def add_player(user)
     player = Player.where({game_id: self.id, user_id: user.id}).first
-    puts player
     if player
       player
     else

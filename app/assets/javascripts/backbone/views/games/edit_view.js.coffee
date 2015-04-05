@@ -23,7 +23,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
   addPlayer : (e) ->
     player = new Unteekuh.Models.Player({game_id: @model.id})
     player.save(
-      {game_id: @model.id},
+      {},
       success : (player) =>
         @players.add(player)
     )

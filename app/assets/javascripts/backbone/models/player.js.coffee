@@ -4,7 +4,6 @@ class Unteekuh.Models.Player extends Backbone.Model
 
   defaults:
     game_id: null
-    user_id: null
     name: null
     color: null
     gold: null

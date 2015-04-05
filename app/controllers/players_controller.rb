@@ -37,7 +37,9 @@ class PlayersController < ApplicationController
   # PATCH/PUT /players/1.json
   def update
     @game = Game.find(player_params['game_id'])
-    @player = @game.add_player(current_user)
+    @player = Player.find(player_params['id'])
+
+    raise 'you can not edit other players' unless @player.user_id == current_user.id
 
     respond_to do |format|
       if @player.update(player_params)
@@ -68,6 +70,6 @@ class PlayersController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def player_params
-      params.require(:player).permit(:user_id, :game_id, :name, :color)
+      params.require(:player).permit(:id, :game_id, :name, :color)
     end
 end
