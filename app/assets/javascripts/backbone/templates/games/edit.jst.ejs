@@ -3,17 +3,22 @@
 <form id="edit-game" name="game">
   <div class="field">
     <label for="name"> name:</label>
-    <input type="text" name="name" id="name" value="<%= name %>" >
+    <input type="text" name="name" id="name" value="<%= name %>" <%if (!inPlayerSignup) { %> disabled="true" <% } %>>
   </div>
 
+  <%if (inPlayerSignup) { %>
   <div class="actions">
     <input type="submit" value="Update Game" />
   </div>
+  <% } %>
 
 </form>
 
 <div id="players"></div>
 
+<%if (inPlayerSignup) { %>
 <button id="add_player">I want to play</button><br>
+<button id="start_game">Start game</button><br>
+<% } %>
 
 <a href="#/index">Back</a>

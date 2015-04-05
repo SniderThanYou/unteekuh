@@ -4,7 +4,7 @@ API must haves:
 * ~~add player to game~~
 * ~~assign player color~~
 * start game
-  * disable adding players
+  * ~~disable adding players~~
   * disable removing players
   * disable setting player color
 * get board current state

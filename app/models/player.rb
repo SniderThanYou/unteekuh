@@ -2,7 +2,7 @@ class Player
   include Mongoid::Document
   field :user_id, type: BSON::ObjectId
   field :name, type: String, default: ''
-  field :color, type: String #hexadecimal, i.e. '#0700FF'
+  field :color, type: String, default: '#ff0000' #hexadecimal, i.e. '#0700FF'
 
   field :gold, type: Integer, default: 3
   field :marble, type: Integer, default: 2

@@ -8,7 +8,7 @@ class Game
 
   def add_player(user)
     player = Player.where({game_id: self.id, user_id: user.id}).first
-    if player
+    if player && self.player_signup?
       player
     else
       players.create(user_id: user.id, name: user.email) unless player

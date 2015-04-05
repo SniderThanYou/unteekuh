@@ -6,6 +6,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
   events :
     "submit #edit-game" : "update"
     "click #add_player" : "addPlayer"
+    "click #start_game" : "startGame"
 
   initialize : (options) ->
     @players = new Unteekuh.Collections.PlayersCollection([], {game_id: @model.id})
@@ -28,12 +29,27 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
         @players.add(player)
     )
 
+  startGame : (e) ->
+    view = this
+    model = @model
+    $.ajax
+      url: unteekuh.paths.start_game(model.id)
+      type: 'POST'
+      success: (data, status, response) ->
+        model.fetch({
+          success: (model, response, options) ->
+            view.render()
+        })
+
+  viewModel : ->
+    $.extend({inPlayerSignup: @model.inPlayerSignup()}, @model.attributes)
+
   render : ->
-    $(@el).html(@template(@model.toJSON()))
+    $(@el).html(@template(@viewModel()))
 
     this.$("form").backboneLink(@model)
 
-    playersView = new Unteekuh.Views.Players.IndexView({el: @$('#players'), players: @players})
+    playersView = new Unteekuh.Views.Players.IndexView({el: @$('#players'), players: @players, inPlayerSignup: @model.inPlayerSignup()})
     @players.fetch()
 
     return this

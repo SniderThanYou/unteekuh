@@ -2,8 +2,11 @@ class Unteekuh.Models.Game extends Backbone.Model
   paramRoot: 'game'
 
   defaults : ->
-    name: null
-    players: new Unteekuh.Collections.PlayersCollection([], {game_id: @id})
+    name: null,
+    state: null
+
+  inPlayerSignup : ->
+    @get('state') == "player_signup"
 
 class Unteekuh.Collections.GamesCollection extends Backbone.Collection
   model: Unteekuh.Models.Game

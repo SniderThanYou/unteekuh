@@ -21,6 +21,9 @@
         },
         game: function(id){
             return "<%= game_path('token_1')%>".replace('token_1', id);
+        },
+        start_game: function(id){
+            return "<%= start_game_path('token_1')%>".replace('token_1', id);
         }
     });
     $(function() {
