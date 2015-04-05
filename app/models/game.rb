@@ -15,13 +15,17 @@ class Game
     end
   end
 
+  def start_game
+    self.begin_playing
+  end
+
   module State
     PLAYER_SIGNUP = 'player_signup'
     PLAYING = 'playing'
   end
 
   state_machine :initial => :player_signup do
-    event :start_game do
+    event :begin_playing do
       transition :player_signup => :playing
     end
   end

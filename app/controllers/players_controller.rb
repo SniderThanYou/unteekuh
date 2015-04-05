@@ -24,7 +24,7 @@ class PlayersController < ApplicationController
   # POST /players
   # POST /players.json
   def create
-    @game = Game.find(player_params['game_id'])
+    @game = Game.find(params['game_id'])
     @player = @game.add_player(current_user)
 
     respond_to do |format|
@@ -36,8 +36,7 @@ class PlayersController < ApplicationController
   # PATCH/PUT /players/1
   # PATCH/PUT /players/1.json
   def update
-    @game = Game.find(player_params['game_id'])
-    @player = Player.find(player_params['id'])
+    @game = Game.find(params['game_id'])
 
     raise 'game has started' unless @game.player_signup?
     raise 'you can not edit other players' unless @player.user_id == current_user.id
