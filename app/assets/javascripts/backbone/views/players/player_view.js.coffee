@@ -15,5 +15,11 @@ class Unteekuh.Views.Players.PlayerView extends Backbone.View
     return false
 
   render: ->
-    $(@el).html(@template(@model.toJSON() ))
+    self = this
+
+    $(@el).html(@template(@model.toJSON()))
+    @$('#colorpicker').minicolors({
+      hide: ->
+        self.model.save({color: this.value})
+    })
     return this

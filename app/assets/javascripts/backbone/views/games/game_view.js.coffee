@@ -16,5 +16,5 @@ class Unteekuh.Views.Games.GameView extends Backbone.View
     return false
 
   render: ->
-    $(@el).html(@template(@model.toJSON() ))
+    $(@el).html(@template(@model.toJSON()))
     return this

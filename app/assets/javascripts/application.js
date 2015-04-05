@@ -12,6 +12,7 @@
 //
 //= require jquery
 //= require jquery_ujs
+//= require jquery.minicolors
 //= require underscore
 //= require backbone
 //= require backbone_rails_sync

@@ -3,8 +3,9 @@ API must haves:
 ~~log in~~
 ~~create new game~~
 ~~add player to game~~
-assign player color
+~~assign player color~~
 start game
+when game is started, stop adding/deleting players and changing their colors
 get board current state
 rondel actions:
   iron

@@ -29,17 +29,20 @@ class PlayersController < ApplicationController
 
     respond_to do |format|
       format.html { redirect_to @player, notice: 'Player was successfully created.' }
-      format.json { render :show, status: :created, location: game_player_url(@game.id, @game.players.last.id)   }
+      format.json { render :show, status: :created, location: game_player_url(@game.id, @player.id)   }
     end
   end
 
   # PATCH/PUT /players/1
   # PATCH/PUT /players/1.json
   def update
+    @game = Game.find(player_params['game_id'])
+    @player = @game.add_player(current_user)
+
     respond_to do |format|
       if @player.update(player_params)
         format.html { redirect_to @player, notice: 'Player was successfully updated.' }
-        format.json { render :show, status: :ok, location: @player }
+        format.json { render :show, status: :ok, location: game_player_url(@game.id, @player.id) }
       else
         format.html { render :edit }
         format.json { render json: @player.errors, status: :unprocessable_entity }
