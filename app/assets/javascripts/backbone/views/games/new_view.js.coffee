@@ -23,7 +23,7 @@ class Unteekuh.Views.Games.NewView extends Backbone.View
     @collection.create(@model.toJSON(),
       success: (game) =>
         @model = game
-        window.location.hash = "/#{@model.id}"
+        window.location.hash = "/index"
 
       error: (game, jqXHR) =>
         @model.set({errors: $.parseJSON(jqXHR.responseText)})
