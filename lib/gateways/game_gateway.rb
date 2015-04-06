@@ -16,6 +16,10 @@ class GameGateway
     game.players.create(user_id: user.id, name: user.email)
   end
 
+  def player_ids
+    self.find_by_id.players.collect{|p| p.id}
+  end
+
   def set_board(board)
     game = self.find_by_id
     game.board = board

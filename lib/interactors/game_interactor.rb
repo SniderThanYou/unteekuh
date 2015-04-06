@@ -12,9 +12,14 @@ class GameInteractor
   end
 
   def start_game
-    @game_gateway.set_board(BoardGateway.create_orient)
+    players = @game_gateway.player_ids
     @game_gateway.randomize_player_order
+    @game_gateway.set_board(BoardGateway.create_orient(players))
     @game_gateway.start_playing
+  end
+
+  def move_on_rondel(new_spot, movement_cost)
+
   end
 
   def collect_gold(player_id)

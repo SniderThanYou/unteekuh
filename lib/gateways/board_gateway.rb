@@ -3,8 +3,12 @@ class BoardGateway
     @game_id = game_id
   end
 
-  def self.create_orient
-    Board::Orient.create!
+  def self.create_orient(player_ids)
+    board Board::Orient.create!
+    board.rondel['center'] = player_ids
+
+    board.save
+    board
   end
 
   def gold_produced_by(player_id)
