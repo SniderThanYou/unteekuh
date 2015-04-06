@@ -48,3 +48,6 @@ gem 'devise'
 gem 'state_machine'
 gem 'rails-backbone'
 gem 'jquery-minicolors-rails'
+group :development, :test do
+  gem 'rspec-rails'
+end

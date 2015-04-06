@@ -17,6 +17,20 @@ class Game
 
   def start_game
     self.begin_playing
+    @game_board = GameBoard.for_orient
+  end
+
+  def found_city(player_id, city_name)
+    current_owner_id = @game_board.owner_of(city_name)
+    raise 'city already owned' if current_owner_id
+    PlayerGateway.subtract_resources_from_player(player_id, {gold: 1, marble: 1, iron: 1})
+    @game_board.found_city(city_name, player_id)
+  end
+
+  def purchase_tech(player_id, tech_name)
+    raise 'you already own that tech' if @game_board.player_has_tech?(player_id, tech_name)
+    g = @game_board.gold_cost_of_tech(tech_name)
+    PlayerGateway.subtract_resources_from_player(player_id, {gold: g})
   end
 
   module State
