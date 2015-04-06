@@ -53,14 +53,14 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_moving_on_rondel
     tech_names.each do |tech_name|
-      raise "you already own #{tech_name}" if @board_gateway.player_has_tech?(player_id, tech_name)
-      raise "you do not own the prerequisite tech for #{tech_name}" unless @board_gateway.player_has_prerequisite_for_tech?(player_id, tech_name) || prerequisite_included(tech_names, tech_name)
-      g = @board_gateway.gold_cost_of_tech(tech_name)
+      raise "you already own #{tech_name}" if @game_gateway.player_has_tech?(player_id, tech_name)
+      raise "you do not own the prerequisite tech for #{tech_name}" unless @game_gateway.player_has_prerequisite_for_tech?(player_id, tech_name) || prerequisite_included(tech_names, tech_name)
+      g = @game_gateway.gold_cost_of_tech(tech_name)
     end
     #move_on_rondel(move_payment + cost of tech)
     PlayerGateway.subtract_resources_from_player(player_id, {gold: g})
     tech_names.each do |tech_name|
-      @board_gateway.research_tech(player_id, tech_name)
+      @game_gateway.research_tech(player_id, tech_name)
     end
     ready_to_found_cities
   end

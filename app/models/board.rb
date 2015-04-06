@@ -1,24 +1,10 @@
 class Board
   include Mongoid::Document
-  field :techs, type: Hash, default: lambda{default_techs}
   field :tiles, type: Hash, default: lambda{default_tiles}
   field :rondel, type: Hash, default: lambda{default_rondel}
   belongs_to :game
 
   private
-
-  def default_techs
-    {
-        'wheel' => {'cost_first' => 7, 'cost_rest' => 3, 'owners' => []},
-        'roads' => {'cost_first' => 10, 'cost_rest' => 5, 'owners' => []},
-        'sailing' => {'cost_first' => 7, 'cost_rest' => 3, 'owners' => []},
-        'navigation' => {'cost_first' => 10, 'cost_rest' => 5, 'owners' => []},
-        'market' => {'cost_first' => 7, 'cost_rest' => 3, 'owners' => []},
-        'currency' => {'cost_first' => 10, 'cost_rest' => 5, 'owners' => []},
-        'monarchy' => {'cost_first' => 7, 'cost_rest' => 3, 'owners' => []},
-        'democracy' => {'cost_first' => 10, 'cost_rest' => 5, 'owners' => []}
-    }
-  end
 
   def default_tiles
     tiles = {}

@@ -4,9 +4,12 @@ class Game
   include Mongoid::Document
   field :name, type: String
   field :player_order, type: Array
+  field :tiles, type: Hash, default: {}
+  field :rondel, type: Hash, default: {}
 
   has_many :players, dependent: :destroy
   has_one :board, dependent: :destroy
+  embeds_one :techs, autobuild: true
 
   module State
     PLAYER_SIGNUP = 'player_signup'
@@ -46,4 +49,55 @@ class Game
     res['id'] = res.delete('_id').to_s
     res
   end
+end
+
+class Techs
+  include Mongoid::Document
+  embeds_one :wheel
+  embeds_one :roads
+  embeds_one :sailing
+  embeds_one :navigation
+  embeds_one :market
+  embeds_one :currency
+  embeds_one :monarchy
+  embeds_one :democracy
+end
+
+class TechTier1
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 7
+  field :cost_rest, type: Integer, default: 3
+  field :owners, type: Array, default: []
+end
+
+class TechTier2
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 10
+  field :cost_rest, type: Integer, default: 5
+  field :owners, type: Array, default: []
+end
+
+class Wheel < TechTier1
+  embedded_in :techs
+end
+class Roads < TechTier2
+  embedded_in :techs
+end
+class Sailing < TechTier1
+  embedded_in :techs
+end
+class Navigation < TechTier2
+  embedded_in :techs
+end
+class Market < TechTier1
+  embedded_in :techs
+end
+class Currency < TechTier2
+  embedded_in :techs
+end
+class Monarchy < TechTier1
+  embedded_in :techs
+end
+class Democracy < TechTier2
+  embedded_in :techs
 end

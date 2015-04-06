@@ -56,9 +56,45 @@ class GameGateway
     find_by_id.ready_to_collect_great_people
   end
 
+  def player_has_tech?(player_id, tech_name)
+    tech_by_name(tech_name).owners.include?(player_id)
+  end
+
+  def gold_cost_of_tech(tech_name)
+    tech = find_by_id.techs.send(tech_name)
+    tech.owners.empty? ? tech.cost_first : tech.cost_rest
+  end
+
+  def player_has_prerequisite_for_tech?(player_id, tech_name)
+    case tech_name
+      when 'roads'
+        player_has_tech?(player_id, 'wheel')
+      when 'navigation'
+        player_has_tech?(player_id, 'sailing')
+      when 'currency'
+        player_has_tech?(player_id, 'market')
+      when 'democracy'
+        player_has_tech?(player_id, 'monarchy')
+      else
+        true
+    end
+  end
+
+  def research_tech(player_id, tech_name)
+    tech = tech_by_name(tech_name)
+    tech.owners << player_id
+    tech.save
+  end
+
   # def next_turn
   #   game = self.find_by_id
   #   game.player_order.rotate!
   #   game.save
   # end
+
+  private
+
+  def tech_by_name(tech_name)
+    find_by_id.techs.send(tech_name)
+  end
 end
