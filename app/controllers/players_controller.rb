@@ -4,7 +4,7 @@ class PlayersController < ApplicationController
   # GET /players
   # GET /players.json
   def index
-    @players = Player.where(game_id: params[:game_id])
+    @players = PlayerGateway.players_in_game(params[:game_id])
   end
 
   # GET /players/1
@@ -25,7 +25,7 @@ class PlayersController < ApplicationController
   # POST /players.json
   def create
     @game = Game.find(params['game_id'])
-    @player = @game.add_player(current_user)
+    @player = GameInteractor.new(params['game_id']).add_player(current_user)
 
     respond_to do |format|
       format.html { redirect_to @player, notice: 'Player was successfully created.' }
@@ -67,7 +67,7 @@ class PlayersController < ApplicationController
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_player
-      @player = Player.find(params[:id])
+      @player = PlayerGateway.find_by_id(params[:id])
     end
 
     # Never trust parameters from the scary internet, only allow the white list through.

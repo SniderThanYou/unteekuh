@@ -63,7 +63,7 @@ class GamesController < ApplicationController
 
   # POST /games/1/start_game
   def start_game
-    @game.start_game
+    GameInteractor.new(params[:id]).start_game
     render nothing: true
   end
 

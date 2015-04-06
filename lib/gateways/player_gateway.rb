@@ -1,8 +1,14 @@
-require_relative '../../app/models/player'
-
 class PlayerGateway
   def self.find_by_id(player_id)
-    Player.find(player_id).limit(1).first
+    Player.where(id: player_id).limit(1).first
+  end
+
+  def self.players_in_game(game_id)
+    Player.where(game_id: game_id)
+  end
+
+  def self.find_player_in_game(game_id, user_id)
+    Player.where({game_id: game_id, user_id: user_id}).first
   end
 
   def self.subtract_resources_from_player(player_id, h)
