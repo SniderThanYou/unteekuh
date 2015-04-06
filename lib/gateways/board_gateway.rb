@@ -36,9 +36,54 @@ class BoardGateway
     tech['owners'].empty? ? tech['cost_first'] : tech['cost_rest']
   end
 
+  def player_has_prerequisite_for_tech?(player_id, tech_name)
+    case tech_name
+      when 'roads'
+        player_has_tech?(player_id, 'wheel')
+      when 'navigation'
+        player_has_tech?(player_id, 'sailing')
+      when 'currency'
+        player_has_tech?(player_id, 'market')
+      when 'democracy'
+        player_has_tech?(player_id, 'monarchy')
+      else
+        true
+    end
+  end
+
   def research_tech(player_id, tech_name)
     board = find_by_game_id
     board.techs[tech_name]['owners'] << player_id
+    board.save
+  end
+
+  def has_temple?(city_name)
+    find_by_game_id.tiles[city_name]['has_temple']
+  end
+
+  def build_temple(city_name)
+    board = find_by_game_id
+    board.tiles[city_name]['has_temple'] = true
+    board.save
+  end
+
+  def city_supports_footmen?(city_name)
+    !find_by_game_id.tiles[city_name]['ground_connections'][city_name].nil?
+  end
+
+  def city_supports_boats?(city_name)
+    !find_by_game_id.tiles[city_name]['water_connections'][city_name].nil?
+  end
+
+  def arm_footman(player_id, city_name)
+    board = find_by_game_id
+    board.tiles[city_name]['footmen'] << player_id
+    board.save
+  end
+
+  def arm_boat(player_id, city_name)
+    board = find_by_game_id
+    board.tiles[city_name]['boats'] << player_id
     board.save
   end
 

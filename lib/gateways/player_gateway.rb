@@ -11,11 +11,17 @@ class PlayerGateway
     Player.where({game_id: game_id, user_id: user_id}).first
   end
 
-  def self.subtract_resources_from_player(player_id, h)
-    h[:gold] ||= 0
-    h[:marble] ||= 0
-    h[:iron] ||= 0
-    h[:coins] ||= 0
+  def self.add_resources_to_player(player_id, hash)
+    h = resource_hash(hash)
+    player = find_by_id(player_id)
+    player.gold += h[:gold]
+    player.marble += h[:marble]
+    player.iron += h[:iron]
+    player.coins += h[:coins]
+  end
+
+  def self.subtract_resources_from_player(player_id, hash)
+    h = resource_hash(hash)
     player = find_by_id(player_id)
     raise 'not enough minerals' unless self.has_resources(player, h)
     if player.gold >= h[:gold]
@@ -46,5 +52,16 @@ class PlayerGateway
     used_coins += h[:marble] - player.marble
     used_coins += h[:iron] - player.iron
     used_coins <= player.coins
+  end
+
+  private
+
+  def resource_hash(h)
+    {
+        gold: 0,
+        marble: 0,
+        iron: 0,
+        coins: 0
+    }.merge(h)
   end
 end
