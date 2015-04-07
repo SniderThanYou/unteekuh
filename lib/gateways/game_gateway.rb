@@ -201,16 +201,40 @@ class GameGateway
     find_by_id.moving_on_rondel?
   end
 
-  def founding_cities?
-    find_by_id.founding_cities?
+  def start_building_temples
+    find_by_id.start_building_temples
+  end
+
+  def building_temples?
+    find_by_id.building_temples?
+  end
+
+  def start_arming
+    find_by_id.start_arming
+  end
+
+  def arming?
+    find_by_id.arming?
+  end
+
+  def start_researching_techs
+    find_by_id.start_researching_techs
+  end
+
+  def researching_techs?
+    find_by_id.researching_techs?
   end
 
   def ready_to_found_cities
     find_by_id.ready_to_found_cities
   end
 
-  def ready_to_collect_great_people
-    find_by_id.ready_to_collect_great_people
+  def founding_cities?
+    find_by_id.founding_cities?
+  end
+
+  def ready_to_claim_great_people
+    find_by_id.ready_to_claim_great_people
   end
 
   # def next_turn

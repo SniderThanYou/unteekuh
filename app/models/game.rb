@@ -19,27 +19,36 @@ class Game
     event :start_playing do
       transition :player_signup => :moving_on_rondel
     end
+    event :start_building_temples do
+      transition :moving_on_rondel => :building_temples
+    end
+    event :start_arming do
+      transition :moving_on_rondel => :arming
+    end
+    event :start_researching_techs do
+      transition :moving_on_rondel => :researching_techs
+    end
     event :ready_to_found_cities do
-      transition :moving_on_rondel => :founding_cities
+      transition [:moving_on_rondel, :building_temples, :arming, :researching_techs] => :founding_cities
     end
-    event :start_maneuvering do
-      transition :moving_on_rondel => :maneuvering
-    end
-    event :maveuver_into_hostile_territory do
-      transition :maneuvering => :waiting_for_combat_decision
-    end
-    event :combat_decided do
-      transition :waiting_for_combat_decision => :maneuvering
-    end
-    event :finish_maveuvering do
-      transition :maneuvering => :founding_cities
-    end
-    event :ready_to_collect_great_people do
+    # event :start_maneuvering do
+    #   transition :moving_on_rondel => :maneuvering
+    # end
+    # event :maveuver_into_hostile_territory do
+    #   transition :maneuvering => :waiting_for_combat_decision
+    # end
+    # event :combat_decided do
+    #   transition :waiting_for_combat_decision => :maneuvering
+    # end
+    # event :finish_maveuvering do
+    #   transition :maneuvering => :founding_cities
+    # end
+    event :ready_to_claim_great_people do
       transition :founding_cities => :claiming_great_people
     end
-    event :next_turn do
-      transition :claiming_great_people => :moving_on_rondel
-    end
+    # event :next_turn do
+    #   transition :claiming_great_people => :moving_on_rondel
+    # end
   end
 
   def as_json(*args)
