@@ -2,6 +2,9 @@
 
 <script type="text/javascript">
     unteekuh.paths = $.extend(unteekuh.paths, {
+        assets: function(asset){
+            return "<%= asset_path('token_1')%>".replace('token_1', asset);
+        },
         game_players: function(gameId){
             return "<%= game_players_path('token_1')%>".replace('token_1', gameId);
         },

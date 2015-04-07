@@ -51,5 +51,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
 
     playersView = new Unteekuh.Views.Players.IndexView({el: @$('#players'), players: @players, inPlayerSignup: @model.inPlayerSignup()})
     @players.fetch()
+    this.$("#game_board_image").attr("src", unteekuh.paths.assets("assets/orient.jpg"))
 
     return this
