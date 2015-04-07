@@ -4,12 +4,11 @@ class Game
   include Mongoid::Document
   field :name, type: String
   field :player_order, type: Array
-  field :tiles, type: Hash, default: {}
   field :rondel, type: Hash, default: {}
 
   has_many :players, dependent: :destroy
-  has_one :board, dependent: :destroy
   embeds_one :techs, autobuild: true
+  embeds_many :tiles
 
   module State
     PLAYER_SIGNUP = 'player_signup'
@@ -53,51 +52,84 @@ end
 
 class Techs
   include Mongoid::Document
-  embeds_one :wheel
-  embeds_one :roads
-  embeds_one :sailing
-  embeds_one :navigation
-  embeds_one :market
-  embeds_one :currency
-  embeds_one :monarchy
-  embeds_one :democracy
+  embedded_in :game
+  embeds_one :wheel, autobuild: true
+  embeds_one :roads, autobuild: true
+  embeds_one :sailing, autobuild: true
+  embeds_one :navigation, autobuild: true
+  embeds_one :market, autobuild: true
+  embeds_one :currency, autobuild: true
+  embeds_one :monarchy, autobuild: true
+  embeds_one :democracy, autobuild: true
 end
 
-class TechTier1
+class Wheel
   include Mongoid::Document
   field :cost_first, type: Integer, default: 7
   field :cost_rest, type: Integer, default: 3
   field :owners, type: Array, default: []
+  embedded_in :techs
 end
-
-class TechTier2
+class Roads
   include Mongoid::Document
   field :cost_first, type: Integer, default: 10
   field :cost_rest, type: Integer, default: 5
   field :owners, type: Array, default: []
+  embedded_in :techs
+end
+class Sailing
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 7
+  field :cost_rest, type: Integer, default: 3
+  field :owners, type: Array, default: []
+  embedded_in :techs
+end
+class Navigation
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 10
+  field :cost_rest, type: Integer, default: 5
+  field :owners, type: Array, default: []
+  embedded_in :techs
+end
+class Market
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 7
+  field :cost_rest, type: Integer, default: 3
+  field :owners, type: Array, default: []
+  embedded_in :techs
+end
+class Currency
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 10
+  field :cost_rest, type: Integer, default: 5
+  field :owners, type: Array, default: []
+  embedded_in :techs
+end
+class Monarchy
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 7
+  field :cost_rest, type: Integer, default: 3
+  field :owners, type: Array, default: []
+  embedded_in :techs
+end
+class Democracy
+  include Mongoid::Document
+  field :cost_first, type: Integer, default: 10
+  field :cost_rest, type: Integer, default: 5
+  field :owners, type: Array, default: []
+  embedded_in :techs
 end
 
-class Wheel < TechTier1
-  embedded_in :techs
-end
-class Roads < TechTier2
-  embedded_in :techs
-end
-class Sailing < TechTier1
-  embedded_in :techs
-end
-class Navigation < TechTier2
-  embedded_in :techs
-end
-class Market < TechTier1
-  embedded_in :techs
-end
-class Currency < TechTier2
-  embedded_in :techs
-end
-class Monarchy < TechTier1
-  embedded_in :techs
-end
-class Democracy < TechTier2
-  embedded_in :techs
+class Tile
+  include Mongoid::Document
+  field :name, type: String
+  field :resource, type: String
+  field :owner, type: BSON::ObjectId
+  field :has_temple, type: Boolean
+  field :footmen, type: Array
+  field :boats, type: Array
+  field :ground_connections, type: Array
+  field :water_connections, type: Array
+
+  embedded_in :game
 end

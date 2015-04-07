@@ -1,15 +1,8 @@
 class Board
-  include Mongoid::Document
-  field :tiles, type: Hash, default: lambda{default_tiles}
-  field :rondel, type: Hash, default: lambda{default_rondel}
-  belongs_to :game
-
-  private
-
   def default_tiles
-    tiles = {}
+    tiles = []
     city_names.each do |city|
-      tiles[city] = {
+      tiles << {
           name: city,
           resource: resource_types[city],
           owner: nil,
@@ -43,6 +36,43 @@ class Board
 end
 
 class Board::Orient < Board
+  def self.starting_cities(num_players)
+    case num_players
+      when 3
+        [
+            [:saba, :adane, :mecca],
+            [:artaxata, :susa, :ninive],
+            [:messana, :sparta, :dyrrhachion]
+        ]
+      when 4
+        [
+            [:tyros, :paphos, :alexandria],
+            [:artaxata, :susa, :zadrakarta],
+            [:saba, :adane, :moscha],
+            [:athenae, :pella, :dyrrhachion]
+        ]
+      when 5
+        [
+            [:theben, :ammonion, :cyrene],
+            [:saba, :adane, :moscha],
+            [:tyros, :paphos, :antiochia],
+            [:persepolis, :rhagai, :charax],
+            [:athenae, :pella, :dyrrhachion]
+        ]
+      when 6
+        [
+            [:babylon, :ninive, :melitene],
+            [:theben, :ammonion, :meroe],
+            [:punt, :adane, :dioscoridis],
+            [:tyros, :paphos, :ephesos],
+            [:persepolis, :harmotia, :zadrakarta],
+            [:messana, :pella, :dyrrhachion]
+        ]
+      else
+        raise 'Must have 3 - 6 players'
+    end
+  end
+
   private
 
   def city_names
@@ -263,43 +293,6 @@ class Board::Orient < Board
         tyros: [:alexandria, :paphos, :antiochia],
         zadrakarta: nil
     }
-  end
-
-  def starting_cities(num_players)
-    case num_players
-      when 3
-        [
-            [:saba, :adane, :mecca],
-            [:artaxata, :susa, :ninive],
-            [:messana, :sparta, :dyrrhachion]
-        ]
-      when 4
-        [
-            [:tyros, :paphos, :alexandria],
-            [:artaxata, :susa, :zadrakarta],
-            [:saba, :adane, :moscha],
-            [:athenae, :pella, :dyrrhachion]
-        ]
-      when 5
-        [
-            [:theben, :ammonion, :cyrene],
-            [:saba, :adane, :moscha],
-            [:tyros, :paphos, :antiochia],
-            [:persepolis, :rhagai, :charax],
-            [:athenae, :pella, :dyrrhachion]
-        ]
-      when 6
-        [
-            [:babylon, :ninive, :melitene],
-            [:theben, :ammonion, :meroe],
-            [:punt, :adane, :dioscoridis],
-            [:tyros, :paphos, :ephesos],
-            [:persepolis, :harmotia, :zadrakarta],
-            [:messana, :pella, :dyrrhachion]
-        ]
-      else
-        raise 'Must have 3 - 6 players'
-    end
   end
 end
 
