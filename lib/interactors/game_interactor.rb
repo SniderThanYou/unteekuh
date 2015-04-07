@@ -70,8 +70,7 @@ class GameInteractor
     verify_arming
     verify_player_owns_city(player_id, city_name)
     verify_city_supports_footmen(city_name)
-    # max_troops_in_city = @game_gateway.has_temple?(city_name) ? 3 : 1
-    # raise "you can only arm #{max_troops_in_city} in #{city_name}" if troops_added_this_turn.count(city_name) >= max_troops_in_city
+    verify_more_troops_can_be_added_this_turn(city_name)
     PlayerGateway.subtract_resources_from_player(player_id, {iron: 1})
     @game_gateway.arm_footman(city_name, player_id)
   end
@@ -81,8 +80,7 @@ class GameInteractor
     verify_arming
     verify_player_owns_city(player_id, city_name)
     verify_city_supports_boats(city_name)
-    # max_troops_in_city = @game_gateway.has_temple?(city_name) ? 3 : 1
-    # raise "you can only arm #{max_troops_in_city} in #{city_name}" if troops_added_this_turn.count(city_name) >= max_troops_in_city
+    verify_more_troops_can_be_added_this_turn(city_name)
     PlayerGateway.subtract_resources_from_player(player_id, {iron: 1})
     @game_gateway.arm_boat(city_name, player_id)
   end
@@ -209,6 +207,12 @@ class GameInteractor
 
   def verify_city_supports_boats(city_name)
     raise "you can not arm boats in #{city_name}" unless @game_gateway.city_supports_boats?(city_name)
+  end
+
+  def verify_more_troops_can_be_added_this_turn(city_name)
+    max_troops_in_city = @game_gateway.has_temple?(city_name) ? 3 : 1
+    max_capacity = @game_gateway.troops_added_this_turn(city_name) >= max_troops_in_city
+    raise "You can only arm #{max_troops_in_city} in #{city_name} per turn" if max_capacity
   end
 
   def ready_to_found_cities

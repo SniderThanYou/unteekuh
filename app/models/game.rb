@@ -153,6 +153,7 @@ class Tile
   field :boats, type: Array
   field :ground_connections, type: Array
   field :water_connections, type: Array
+  field :troops_added_this_turn, type: Integer, default: 0
 
   embedded_in :game
 end

@@ -108,7 +108,7 @@ class GameGateway
   end
 
   def gold_cost_of_tech(tech_name)
-    tech = find_by_id.techs.send(tech_name)
+    tech = tech_by_name(tech_name)
     tech.owners.empty? ? tech.cost_first : tech.cost_rest
   end
 
@@ -162,13 +162,19 @@ class GameGateway
   def arm_footman(city_name, player_id)
     tile = tile_by_name(city_name)
     tile.footmen << player_id
+    tile.troops_added_this_turn += 1
     tile.save
   end
 
   def arm_boat(city_name, player_id)
     tile = tile_by_name(city_name)
     tile.boats << player_id
+    tile.troops_added_this_turn += 1
     tile.save
+  end
+
+  def troops_added_this_turn(city_name)
+    tile_by_name(city_name).troops_added_this_turn
   end
 
 ########################################################
@@ -238,8 +244,11 @@ class GameGateway
   end
 
   # def next_turn
+  #   tile = tile_by_name(city_name)
+  #   tile.troops_added_this_turn = 0
+  #   tile.save
   #   game = self.find_by_id
-  #   game.player_order.rotate!
+  #   game.player_order.rotate!(-1)
   #   game.save
   # end
 
