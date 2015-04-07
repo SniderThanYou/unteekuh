@@ -59,7 +59,24 @@ class GameGateway
   end
 
 ########################################################
-###              gold rondel action
+###              rondel movement
+########################################################
+
+  def cost_to_move_on_rondel(old_spot, new_spot)
+    return 0 if old_spot == 'center'
+    rondel_locations = ['iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
+    rondel_locations.rotate(rondel_locations.index(old_spot)).index(new_spot) - 3
+  end
+
+  def move_player_on_rondel(player_id, old_spot, new_spot)
+    rondel = find_by_id.rondel
+    rondel.send(old_spot).reject!{|x| x == player_id}
+    rondel.send(new_spot) << player_id
+    rondel.save
+  end
+
+########################################################
+###              gold action
 ########################################################
 
   def gold_produced_by(player_id)
@@ -67,7 +84,7 @@ class GameGateway
   end
 
 ########################################################
-###              marble rondel action
+###              marble action
 ########################################################
 
   def marble_produced_by(player_id)
@@ -75,7 +92,7 @@ class GameGateway
   end
 
 ########################################################
-###              iron rondel action
+###              iron action
 ########################################################
 
   def iron_produced_by(player_id)
@@ -83,7 +100,7 @@ class GameGateway
   end
 
 ########################################################
-###              know how rondel action
+###              know how action
 ########################################################
 
   def player_has_tech?(player_id, tech_name)

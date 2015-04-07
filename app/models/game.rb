@@ -4,9 +4,9 @@ class Game
   include Mongoid::Document
   field :name, type: String
   field :player_order, type: Array
-  field :rondel, type: Hash, default: {}
 
   has_many :players, dependent: :destroy
+  embeds_one :rondel, autobuild: true
   embeds_one :techs, autobuild: true
   embeds_many :tiles
 
@@ -48,6 +48,20 @@ class Game
     res['id'] = res.delete('_id').to_s
     res
   end
+end
+
+class Rondel
+  include Mongoid::Document
+  embedded_in :game
+  field :center, type: Array, default: []
+  field :iron, type: Array, default: []
+  field :temple, type: Array, default: []
+  field :gold, type: Array, default: []
+  field :maneuver1, type: Array, default: []
+  field :arming, type: Array, default: []
+  field :marble, type: Array, default: []
+  field :know_how, type: Array, default: []
+  field :maneuver2, type: Array, default: []
 end
 
 class Techs

@@ -17,35 +17,33 @@ class GameInteractor
     @game_gateway.start_playing
   end
 
-  def move_on_rondel(new_spot, movement_cost)
-
-  end
-
-  def collect_gold(player_id)
+  def move_on_rondel(player_id, old_spot, new_spot, move_payment)
     verify_player_turn(player_id)
     verify_moving_on_rondel
-    #move_on_rondel(move_payment)
-    g = @game_gateway.gold_produced_by(player_id)
-    PlayerGateway.add_resources_to_player(player_id, {gold: g})
-    ready_to_found_cities
-  end
+    total_payment = move_payment.values.inject{|sum,x| sum + x }
+    cost = @game_gateway.cost_to_move_on_rondel(old_spot, new_spot)
+    raise 'Each spot past the third costs one resource' unless total_payment == cost
 
-  def collect_marble(player_id)
-    verify_player_turn(player_id)
-    verify_moving_on_rondel
-    #move_on_rondel(move_payment)
-    m = @game_gateway.marble_produced_by(player_id)
-    PlayerGateway.add_resources_to_player(player_id, {marble: m})
-    ready_to_found_cities
-  end
+    PlayerGateway.subtract_resources_from_player(player_id, move_payment)
+    @game_gateway.move_player_on_rondel(player_id, old_spot, new_spot)
 
-  def collect_iron(player_id)
-    verify_player_turn(player_id)
-    verify_moving_on_rondel
-    #move_on_rondel(move_payment)
-    i = @game_gateway.iron_produced_by(player_id)
-    PlayerGateway.add_resources_to_player(player_id, {iron: i})
-    ready_to_found_cities
+    case new_spot
+      when 'iron'
+        collect_iron(player_id)
+      when 'temple'
+      when 'gold'
+        collect_gold(player_id)
+      when 'maneuver1'
+      when 'arming'
+      when 'marble'
+        collect_marble(player_id)
+      when 'know_how'
+      when 'maneuver2'
+      else
+        raise 'Invalid new spot'
+    end
+
+    #TODO set state accordingly for action to be taken
   end
 
   def purchase_tech(player_id, tech_names)
@@ -161,5 +159,23 @@ class GameInteractor
     else
       true
     end
+  end
+
+  def collect_gold(player_id)
+    g = @game_gateway.gold_produced_by(player_id)
+    PlayerGateway.add_resources_to_player(player_id, {gold: g})
+    ready_to_found_cities
+  end
+
+  def collect_marble(player_id)
+    m = @game_gateway.marble_produced_by(player_id)
+    PlayerGateway.add_resources_to_player(player_id, {marble: m})
+    ready_to_found_cities
+  end
+
+  def collect_iron(player_id)
+    i = @game_gateway.iron_produced_by(player_id)
+    PlayerGateway.add_resources_to_player(player_id, {iron: i})
+    ready_to_found_cities
   end
 end
