@@ -9,7 +9,7 @@ class Unteekuh.Models.Game extends Backbone.Model
 
   playerColor : (player_id) ->
     for player in @get('players')
-      if (player.user_id == player_id)
+      if (player.id == player_id)
         return player.color
 
 class Unteekuh.Collections.GamesCollection extends Backbone.Collection

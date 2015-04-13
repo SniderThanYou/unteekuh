@@ -26,7 +26,7 @@ class GameGateway
 
   def randomize_player_order
     game = find_by_id
-    game.player_order = player_user_ids.shuffle
+    game.player_order = player_ids.shuffle
     game.save
   end
 
@@ -87,7 +87,7 @@ class GameGateway
 
   def set_starting_cities(region)
     if region == :orient
-      pids = player_user_ids
+      pids = player_ids
       all_starts = Board::Orient.starting_cities(pids.length)
       all_starts.each_with_index do |player_cities, i|
         player_cities.each do |city_name|
@@ -99,6 +99,11 @@ class GameGateway
     else
       raise 'only orient is supported at this time'
     end
+  end
+
+  def set_starting_rondel_positions
+    game = find_by_id
+    game.rondel.center = player_ids
   end
 
 ########################################################
@@ -306,8 +311,8 @@ class GameGateway
     find_by_id.tiles.select{|t| t.name == city_name}.first
   end
 
-  def player_user_ids
-    find_by_id.players.collect{|p| p.user_id}
+  def player_ids
+    find_by_id.players.collect{|p| p.id}
   end
 
   def resource_produced_by(player_id, resource)

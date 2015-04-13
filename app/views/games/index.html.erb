@@ -30,7 +30,7 @@
         }
     });
     $(function() {
-        window.router = new Unteekuh.Routers.GamesRouter({games: <%= @games.to_json.html_safe -%>});
+        window.router = new Unteekuh.Routers.GamesRouter({games: <%= @games.as_json.to_json.html_safe -%>});
         Backbone.history.start();
     });
 </script>

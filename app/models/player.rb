@@ -25,10 +25,4 @@ class Player
   field :monarchy_level, type: Integer, default: 0
 
   embedded_in :game
-
-  def as_json(options={})
-    attrs = super(options)
-    attrs['game_id'] = game.id.to_s
-    attrs
-  end
 end

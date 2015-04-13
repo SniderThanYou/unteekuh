@@ -10,15 +10,10 @@ module BSON
 end
 module Mongoid
   module Document
-    def as_json(options={})
-      attrs = super(options)
-      attrs['id'] = self.persisted? ? self.id.to_s : nil
-      attrs
-    end
-    def to_json(options={})
-      attrs = super(options)
-      attrs['id'] = self.persisted? ? self.id.to_s : nil
-      attrs
+    def serializable_hash(options = nil)
+      h = super(options)
+      h['id'] = h.delete('_id') if(h.has_key?('_id'))
+      h
     end
   end
 end

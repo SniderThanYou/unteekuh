@@ -7,10 +7,16 @@
   * ~~disable adding players~~
   * ~~disable removing players~~
   * ~~disable setting player color~~
-  * create initial board state
-    * depends on number of players
-* get board current state
+  * ~~create initial board state~~
+    * ~~depends on number of players~~
+* ~~get board current state~~
 * draw board
+  * ~~draw cities~~
+  * ~~draw temples~~
+  * draw pegs on rondel
+  * draw pegs on tech
+  * draw boats
+  * draw ships
 * rondel actions:
   * iron
   * marble

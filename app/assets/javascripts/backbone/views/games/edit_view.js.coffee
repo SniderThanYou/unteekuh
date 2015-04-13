@@ -49,6 +49,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
 
     playersView = new Unteekuh.Views.Players.IndexView({el: @$('#players'), players: @players, inPlayerSignup: @model.inPlayerSignup()})
     @players.fetch()
+    console.log(@model)
 
     if (!@model.inPlayerSignup())
       self = this
