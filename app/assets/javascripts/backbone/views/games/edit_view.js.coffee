@@ -37,10 +37,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       success: (data, status, response) ->
         view.model.fetch
           success: (model, response, options) ->
-            console.log('success again')
             view.render()
-          error:  (model, response, options) ->
-            console.log('fail inside')
 
   viewModel : ->
     $.extend({inPlayerSignup: @model.inPlayerSignup()}, @model.attributes)
@@ -53,7 +50,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     playersView = new Unteekuh.Views.Players.IndexView({el: @$('#players'), players: @players, inPlayerSignup: @model.inPlayerSignup()})
     @players.fetch()
 
-
     if (!@model.inPlayerSignup())
       self = this
 
@@ -65,23 +61,52 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
         ctx.drawImage(board, 0, 0);
 
         for tile in self.model.get('tiles')
-          self.drawCity(ctx, self.model, tile)
+          self.drawTile(ctx, self.model, tile)
 
     return this
 
-  drawCity : (ctx, game, tile) ->
+  drawTile : (ctx, game, tile) ->
     if tile.owner?
       color = @model.playerColor(tile.owner)
-      coord = @cityCoordinates(tile.name)
-      ctx.fillStyle = color;
-      ctx.beginPath();
-      ctx.arc(coord.x, coord.y, 8, 0, Math.PI*2, true);
-      ctx.closePath();
-      ctx.fill();
+      cityCoord = @cityCoordinates(tile.name)
+      @drawCity(ctx, color, cityCoord.x, cityCoord.y)
+
+      if tile.has_temple
+        @drawTempleOnCity(ctx, @invertColor(color), cityCoord.x, cityCoord.y)
+
+  drawCity : (ctx, color, x, y) ->
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 11, 0, Math.PI*2, true);
+    ctx.closePath();
+    ctx.fill();
+      
+  drawTempleOnCity : (ctx, color, x, y) ->
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(x - 4, y + 5);
+    ctx.lineTo(x - 4, y - 1);
+    ctx.lineTo(x - 7, y - 1);
+    ctx.lineTo(x, y - 7);
+    ctx.lineTo(x + 7, y - 1);
+    ctx.lineTo(x + 4, y - 1);
+    ctx.lineTo(x + 4, y + 5);
+    ctx.closePath();
+    ctx.fill();
+
+  invertColor : (hexTripletColor) ->
+    color = hexTripletColor;
+    color = color.substring(1);
+    color = parseInt(color, 16);
+    color = 0xFFFFFF ^ color;
+    color = color.toString(16);
+    color = ("000000" + color).slice(-6);
+    color = "#" + color;
+    return color;
 
   cityCoordinates : (city_name) ->
     {
-      adane: {x: 908, y: 680},
+      adane: {x: 909, y: 681},
       adulis: {x: 805, y: 699},
       alexandria: {x: 440, y: 471},
       ammonion: {x: 380, y: 546},
@@ -96,21 +121,21 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       corniclanum: {x: 216, y: 579},
       cyrene: {x: 240, y: 498},
       dioscoridis: {x: 1110, y: 565},
-      dyrrhachion: {x: 101, y: 257},
+      dyrrhachion: {x: 102, y: 257},
       ephesos: {x: 308, y: 283},
       gerrha: {x: 867, y: 359},
       gordion: {x: 387, y: 194},
       harmotia: {x: 986, y: 241},
       knossos: {x: 289, y: 382},
       leptis_magna: {x: 85, y: 579},
-      mecca: {x: 738, y: 580},
+      mecca: {x: 739, y: 580},
       melitene: {x: 512, y: 173},
       memphis: {x: 484, y: 515},
       meroe: {x: 676, y: 740},
-      messana: {x: 42, y: 383},
+      messana: {x: 42, y: 382},
       moscha: {x: 1062, y: 480},
       napoca: {x: 124, y: 55},
-      ninive: {x: 624, y: 192},
+      ninive: {x: 625, y: 192},
       ommana: {x: 1035, y: 313},
       opone: {x: 1074, y: 706},
       palmyra: {x: 604, y: 289},
