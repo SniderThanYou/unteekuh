@@ -35,7 +35,8 @@ class User
   # field :locked_at,       type: Time
   
   def self.serialize_from_session(key, salt)
-    record = to_adapter.get(key[0]["$oid"])
+    real_key = (key.is_a?(Array) && key[0] && key[0].is_a?(Hash)) ? key[0]['$oid'] : key #TODO - figure out why key is sometimes different
+    record = to_adapter.get(real_key)
     record if record && record.authenticatable_salt == salt
   end
 end

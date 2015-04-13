@@ -4,6 +4,10 @@ class GameInteractor
     @game_gateway = GameGateway.new(@game_id)
   end
 
+  def list_players
+    @game_gateway.list_players
+  end
+
   def add_player(user)
     verify_in_player_signup
     verify_user_not_already_playing(user)
@@ -25,7 +29,7 @@ class GameInteractor
     cost = @game_gateway.cost_to_move_on_rondel(old_spot, new_spot)
     raise 'Each spot past the third costs one resource' unless total_payment == cost
 
-    PlayerGateway.subtract_resources_from_player(player_id, move_payment)
+    @game_gateway.subtract_resources_from_player(player_id, move_payment)
     @game_gateway.move_player_on_rondel(player_id, old_spot, new_spot)
 
     case new_spot
@@ -55,7 +59,7 @@ class GameInteractor
     verify_building_temples
     verify_player_owns_city(player_id, city_name)
     verify_city_has_no_temple(city_name)
-    PlayerGateway.subtract_resources_from_player(player_id, {marble: 5})
+    @game_gateway.subtract_resources_from_player(player_id, {marble: 5})
     @game_gateway.build_temple(city_name)
   end
 
@@ -71,7 +75,7 @@ class GameInteractor
     verify_player_owns_city(player_id, city_name)
     verify_city_supports_footmen(city_name)
     verify_more_troops_can_be_added_this_turn(city_name)
-    PlayerGateway.subtract_resources_from_player(player_id, {iron: 1})
+    @game_gateway.subtract_resources_from_player(player_id, {iron: 1})
     @game_gateway.arm_footman(city_name, player_id)
   end
 
@@ -81,7 +85,7 @@ class GameInteractor
     verify_player_owns_city(player_id, city_name)
     verify_city_supports_boats(city_name)
     verify_more_troops_can_be_added_this_turn(city_name)
-    PlayerGateway.subtract_resources_from_player(player_id, {iron: 1})
+    @game_gateway.subtract_resources_from_player(player_id, {iron: 1})
     @game_gateway.arm_boat(city_name, player_id)
   end
 
@@ -97,7 +101,7 @@ class GameInteractor
     verify_player_does_not_own_tech(player_id, tech_name)
     verify_player_has_prerequisite_tech(player_id, tech_name)
     g = @game_gateway.gold_cost_of_tech(tech_name)
-    PlayerGateway.subtract_resources_from_player(player_id, {gold: g})
+    @game_gateway.subtract_resources_from_player(player_id, {gold: g})
     @game_gateway.research_tech(player_id, tech_name)
   end
 
@@ -111,7 +115,7 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_founding_cities
     verify_city_unowned(city_name)
-    PlayerGateway.subtract_resources_from_player(player_id, {gold: 1, marble: 1, iron: 1})
+    @game_gateway.subtract_resources_from_player(player_id, {gold: 1, marble: 1, iron: 1})
     @game_gateway.found_city(city_name, player_id)
   end
 
@@ -128,7 +132,7 @@ class GameInteractor
   end
 
   def verify_user_not_already_playing(user)
-    raise 'You are already in this game' if PlayerGateway.find_player_in_game(@game_id, user.id)
+    raise 'You are already in this game' if @game_gateway.find_player_by_user_id(user.id)
   end
 
   def verify_player_turn(player_id)
@@ -145,19 +149,19 @@ class GameInteractor
 
   def collect_gold(player_id)
     g = @game_gateway.gold_produced_by(player_id)
-    PlayerGateway.add_resources_to_player(player_id, {gold: g})
+    @game_gateway.add_resources_to_player(player_id, {gold: g})
     ready_to_found_cities
   end
 
   def collect_marble(player_id)
     m = @game_gateway.marble_produced_by(player_id)
-    PlayerGateway.add_resources_to_player(player_id, {marble: m})
+    @game_gateway.add_resources_to_player(player_id, {marble: m})
     ready_to_found_cities
   end
 
   def collect_iron(player_id)
     i = @game_gateway.iron_produced_by(player_id)
-    PlayerGateway.add_resources_to_player(player_id, {iron: i})
+    @game_gateway.add_resources_to_player(player_id, {iron: i})
     ready_to_found_cities
   end
 

@@ -5,7 +5,7 @@ class Game
   field :name, type: String
   field :player_order, type: Array
 
-  has_many :players, dependent: :destroy
+  embeds_many :players
   embeds_one :rondel, autobuild: true
   embeds_one :techs, autobuild: true
   embeds_many :tiles
@@ -49,13 +49,6 @@ class Game
     # event :next_turn do
     #   transition :claiming_great_people => :moving_on_rondel
     # end
-  end
-
-  def as_json(*args)
-    puts self.id
-    res = super
-    res['id'] = res.delete('_id').to_s
-    res
   end
 end
 

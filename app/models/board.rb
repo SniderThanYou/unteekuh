@@ -129,7 +129,7 @@ class Board::Orient < Board
         :zadrakarta
     ]
   end
-
+  
   def resource_types
     {
         adane: :iron,

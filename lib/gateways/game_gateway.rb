@@ -11,19 +11,62 @@ class GameGateway
 ###              player management
 ########################################################
 
+  def list_players
+    find_by_id.players
+  end
+
+  def find_player_by_user_id(user_id)
+    find_by_id.players.where(user_id: user_id).first
+  end
+
   def add_player(user)
-    game = self.find_by_id
+    game = find_by_id
     game.players.create(user_id: user.id, name: user.email)
   end
 
   def randomize_player_order
-    game = self.find_by_id
-    game.player_order = player_ids.shuffle
+    game = find_by_id
+    game.player_order = player_user_ids.shuffle
     game.save
   end
 
-  def current_player?(player_id)
-    find_by_id.player_order.first == player_id
+  def current_player?(user_id)
+    find_by_id.player_order.first == user_id
+  end
+
+  def add_resources_to_player(user_id, hash)
+    h = resource_hash(hash)
+    player = find_player_by_user_id(user_id)
+    player.gold += h[:gold]
+    player.marble += h[:marble]
+    player.iron += h[:iron]
+    player.coins += h[:coins]
+  end
+
+  def subtract_resources_from_player(user_id, hash)
+    h = resource_hash(hash)
+    player = find_player_by_user_id(user_id)
+    raise 'not enough minerals' unless self.has_resources(player, h)
+    if player.gold >= h[:gold]
+      player.gold -= h[:gold]
+    else
+      player.coins -= (h[:gold] - player.gold)
+      player.gold = 0
+    end
+    if player.marble >= h[:marble]
+      player.marble -= h[:marble]
+    else
+      player.coins -= (h[:marble] - player.marble)
+      player.marble = 0
+    end
+    if player.iron >= h[:iron]
+      player.iron -= h[:iron]
+    else
+      player.coins -= (h[:iron] - player.iron)
+      player.iron = 0
+    end
+    player.coins -= h[:coins]
+    player.save
   end
 
 ########################################################
@@ -31,7 +74,7 @@ class GameGateway
 ########################################################
 
   def create_board_tiles(region)
-    game = self.find_by_id
+    game = find_by_id
     game.tiles = []
     if region == :orient
       Board::Orient.new.default_tiles.each do |t|
@@ -44,7 +87,7 @@ class GameGateway
 
   def set_starting_cities(region)
     if region == :orient
-      pids = player_ids
+      pids = player_user_ids
       all_starts = Board::Orient.starting_cities(pids.length)
       all_starts.each_with_index do |player_cities, i|
         player_cities.each do |city_name|
@@ -65,7 +108,8 @@ class GameGateway
   def cost_to_move_on_rondel(old_spot, new_spot)
     return 0 if old_spot == 'center'
     rondel_locations = ['iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
-    rondel_locations.rotate(rondel_locations.index(old_spot)).index(new_spot) - 3
+    distance = rondel_locations.rotate(rondel_locations.index(old_spot)).index(new_spot)
+    max(distance - 3, 0)
   end
 
   def move_player_on_rondel(player_id, old_spot, new_spot)
@@ -196,7 +240,7 @@ class GameGateway
 ########################################################
 
   def in_player_signup?
-    self.find_by_id.player_signup?
+    find_by_id.player_signup?
   end
 
   def start_playing
@@ -262,8 +306,8 @@ class GameGateway
     find_by_id.tiles.select{|t| t.name == city_name}.first
   end
 
-  def player_ids
-    self.find_by_id.players.collect{|p| p.id}
+  def player_user_ids
+    find_by_id.players.collect{|p| p.user_id}
   end
 
   def resource_produced_by(player_id, resource)
@@ -280,5 +324,22 @@ class GameGateway
       resources += 1
     end
     resources
+  end
+
+  def has_resources(player, h)
+    used_coins = h[:coins]
+    used_coins += h[:gold] - player.gold
+    used_coins += h[:marble] - player.marble
+    used_coins += h[:iron] - player.iron
+    used_coins <= player.coins
+  end
+
+  def resource_hash(h)
+    {
+        gold: 0,
+        marble: 0,
+        iron: 0,
+        coins: 0
+    }.merge(h)
   end
 end

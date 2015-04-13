@@ -60,9 +60,6 @@ GEM
       activesupport (>= 4.1.0)
     hike (1.2.3)
     i18n (0.7.0)
-    jbuilder (2.2.5)
-      activesupport (>= 3.0.0, < 5)
-      multi_json (~> 1.2)
     jquery-minicolors-rails (2.1.4.0)
       jquery-rails
       rails (>= 3.2.8)
@@ -173,7 +170,6 @@ PLATFORMS
 
 DEPENDENCIES
   devise
-  jbuilder (~> 2.0)
   jquery-minicolors-rails
   jquery-rails
   mongoid
