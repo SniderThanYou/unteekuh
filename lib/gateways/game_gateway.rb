@@ -104,6 +104,7 @@ class GameGateway
   def set_starting_rondel_positions
     game = find_by_id
     game.rondel.center = player_ids
+    game.save
   end
 
 ########################################################

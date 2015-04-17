@@ -64,6 +64,18 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
         for tile in self.model.get('tiles')
           self.drawTile(ctx, self.model, tile)
 
+        rondel = self.model.get('rondel')
+        for rondelLoc, playerIds of rondel
+          continue if rondelLoc == 'id'
+          for playerId, i in playerIds
+            color = self.model.playerColor(playerId)
+            coord = self.rondelCoordinates(rondelLoc)[i]
+            self.drawPeg(ctx, color, coord.x, coord.y)
+
+#        for r in ['center', 'iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
+#          for coord in self.rondelCoordinates(r)
+#            self.drawPeg(ctx, '#FF0000', coord.x, coord.y)
+
     return this
 
   drawTile : (ctx, game, tile) ->
@@ -158,3 +170,32 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       tyros: {x: 538, y: 359},
       zadrakarta: {x: 817, y: 75}
     }[city_name]
+
+  drawPeg : (ctx, color, x, y) ->
+    ctx.fillStyle = color;
+    ctx.strokeStyle = 'black';
+    ctx.beginPath();
+    ctx.moveTo(x - 6, y - 3);
+    ctx.lineTo(x - 3, y - 6);
+    ctx.lineTo(x + 3, y - 6);
+    ctx.lineTo(x + 6, y - 3);
+    ctx.lineTo(x + 6, y + 3);
+    ctx.lineTo(x + 3, y + 6);
+    ctx.lineTo(x - 3, y + 6);
+    ctx.lineTo(x - 6, y + 3);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+  rondelCoordinates : (rondel_space) ->
+    {
+      center:    [{x: 1037, y: 114}, {x: 1048, y: 129}, {x: 1037, y: 147}, {x: 1019, y: 147}, {x: 1008, y: 129}, {x: 1019, y: 114}],
+      iron:      [{x: 1037, y:  80}, {x: 1037, y:  65}, {x: 1037, y:  50}, {x: 1058, y:  88}, {x: 1068, y:  78}, {x: 1078, y:  68}],
+      temple:    [{x: 1071, y: 100}, {x: 1081, y:  90}, {x: 1091, y:  80}, {x: 1078, y: 122}, {x: 1093, y: 122}, {x: 1108, y: 122}],
+      gold:      [{x: 1078, y: 140}, {x: 1093, y: 140}, {x: 1108, y: 140}, {x: 1071, y: 161}, {x: 1081, y: 171}, {x: 1091, y: 181}],
+      maneuver1: [{x: 1059, y: 174}, {x: 1069, y: 184}, {x: 1079, y: 194}, {x: 1038, y: 180}, {x: 1038, y: 195}, {x: 1038, y: 210}],
+      arming:    [{x: 1018, y: 180}, {x: 1018, y: 195}, {x: 1018, y: 210}, {x:  997, y: 174}, {x:  987, y: 184}, {x:  977, y: 194}],
+      marble:    [{x:  985, y: 160}, {x:  975, y: 170}, {x:  965, y: 180}, {x:  980, y: 142}, {x:  965, y: 142}, {x:  950, y: 142}],
+      know_how:  [{x:  980, y: 120}, {x:  965, y: 120}, {x:  950, y: 120}, {x:  987, y: 103}, {x:  977, y:  93}, {x:  967, y:  83}],
+      maneuver2: [{x: 1001, y:  92}, {x:  991, y:  82}, {x:  981, y:  72}, {x: 1017, y:  86}, {x: 1017, y:  71}, {x: 1017, y:  56}],
+    }[rondel_space]
