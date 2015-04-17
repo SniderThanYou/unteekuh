@@ -20,6 +20,7 @@ class GameInteractor
     @game_gateway.create_board_tiles(:orient)
     @game_gateway.set_starting_cities(:orient)
     @game_gateway.set_starting_rondel_positions
+    @game_gateway.set_starting_techs
     @game_gateway.start_playing
   end
 

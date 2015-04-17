@@ -9,6 +9,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     "click #start_game" : "startGame"
 
   initialize : (options) ->
+    @model.bind('sync:end', @render, this)
     @players = new Unteekuh.Collections.PlayersCollection([], {game_id: @model.id})
 
   update : (e) ->
@@ -30,14 +31,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     )
 
   startGame : (e) ->
-    view = this
-    $.ajax
-      url: unteekuh.paths.start_game(view.model.id)
-      type: 'POST'
-      success: (data, status, response) ->
-        view.model.fetch
-          success: (model, response, options) ->
-            view.render()
+    @model.start()
 
   viewModel : ->
     $.extend({inPlayerSignup: @model.inPlayerSignup()}, @model.attributes)
@@ -60,32 +54,21 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       board.src = unteekuh.paths.assets("assets/orient.jpg");
       board.onload = ->
         ctx.drawImage(board, 0, 0);
-
-        for tile in self.model.get('tiles')
-          self.drawTile(ctx, self.model, tile)
-
-        rondel = self.model.get('rondel')
-        for rondelLoc, playerIds of rondel
-          continue if rondelLoc == 'id'
-          for playerId, i in playerIds
-            color = self.model.playerColor(playerId)
-            coord = self.rondelCoordinates(rondelLoc)[i]
-            self.drawPeg(ctx, color, coord.x, coord.y)
-
-#        for r in ['center', 'iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
-#          for coord in self.rondelCoordinates(r)
-#            self.drawPeg(ctx, '#FF0000', coord.x, coord.y)
+        self.drawTiles(ctx)
+        self.drawRondel(ctx)
+        self.drawTechs(ctx)
 
     return this
 
-  drawTile : (ctx, game, tile) ->
-    if tile.owner?
-      color = @model.playerColor(tile.owner)
-      cityCoord = @cityCoordinates(tile.name)
-      @drawCity(ctx, color, cityCoord.x, cityCoord.y)
+  drawTiles : (ctx) ->
+    for tile in @model.get('tiles')
+      if tile.owner?
+        color = @model.playerColor(tile.owner)
+        cityCoord = @cityCoordinates(tile.name)
+        @drawCity(ctx, color, cityCoord.x, cityCoord.y)
 
-      if tile.has_temple
-        @drawTempleOnCity(ctx, @invertColor(color), cityCoord.x, cityCoord.y)
+        if tile.has_temple
+          @drawTempleOnCity(ctx, cityCoord.x, cityCoord.y)
 
   drawCity : (ctx, color, x, y) ->
     ctx.fillStyle = color;
@@ -94,28 +77,30 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     ctx.closePath();
     ctx.fill();
       
-  drawTempleOnCity : (ctx, color, x, y) ->
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.moveTo(x - 4, y + 5);
-    ctx.lineTo(x - 4, y - 1);
-    ctx.lineTo(x - 7, y - 1);
-    ctx.lineTo(x, y - 7);
-    ctx.lineTo(x + 7, y - 1);
-    ctx.lineTo(x + 4, y - 1);
-    ctx.lineTo(x + 4, y + 5);
-    ctx.closePath();
-    ctx.fill();
+  drawTempleOnCity : (ctx, x, y) ->
+    ctx.fillStyle = 'white'
+    ctx.strokeStyle = 'black'
+    ctx.beginPath()
+    ctx.moveTo(x - 4, y + 5)
+    ctx.lineTo(x - 4, y - 1)
+    ctx.lineTo(x - 7, y - 1)
+    ctx.lineTo(x, y - 7)
+    ctx.lineTo(x + 7, y - 1)
+    ctx.lineTo(x + 4, y - 1)
+    ctx.lineTo(x + 4, y + 5)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
 
-  invertColor : (hexTripletColor) ->
-    color = hexTripletColor;
-    color = color.substring(1);
-    color = parseInt(color, 16);
-    color = 0xFFFFFF ^ color;
-    color = color.toString(16);
-    color = ("000000" + color).slice(-6);
-    color = "#" + color;
-    return color;
+#  invertColor : (hexTripletColor) ->
+#    color = hexTripletColor;
+#    color = color.substring(1);
+#    color = parseInt(color, 16);
+#    color = 0xFFFFFF ^ color;
+#    color = color.toString(16);
+#    color = ("000000" + color).slice(-6);
+#    color = "#" + color;
+#    return color;
 
   cityCoordinates : (city_name) ->
     {
@@ -171,6 +156,15 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       zadrakarta: {x: 817, y: 75}
     }[city_name]
 
+  drawRondel : (ctx) ->
+    rondel = @model.get('rondel')
+    for rondelLoc, playerIds of rondel
+      continue if rondelLoc == 'id'
+      for playerId, i in playerIds
+        color = @model.playerColor(playerId)
+        coord = @rondelCoordinates(rondelLoc)[i]
+        @drawPeg(ctx, color, coord.x, coord.y)
+
   drawPeg : (ctx, color, x, y) ->
     ctx.fillStyle = color;
     ctx.strokeStyle = 'black';
@@ -198,4 +192,25 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       marble:    [{x:  985, y: 160}, {x:  975, y: 170}, {x:  965, y: 180}, {x:  980, y: 142}, {x:  965, y: 142}, {x:  950, y: 142}],
       know_how:  [{x:  980, y: 120}, {x:  965, y: 120}, {x:  950, y: 120}, {x:  987, y: 103}, {x:  977, y:  93}, {x:  967, y:  83}],
       maneuver2: [{x: 1001, y:  92}, {x:  991, y:  82}, {x:  981, y:  72}, {x: 1017, y:  86}, {x: 1017, y:  71}, {x: 1017, y:  56}],
+    }[rondel_space]
+
+  drawTechs : (ctx) ->
+    techs = @model.get('tech_panel')
+    for techName, techDetails of techs
+      continue if techName == 'id'
+      for playerId, i in techDetails.owners
+        color = @model.playerColor(playerId)
+        coord = @techCoordinates(techName)[i]
+        @drawPeg(ctx, color, coord.x, coord.y)
+
+  techCoordinates : (rondel_space) ->
+    {
+      wheel:      [{x:  43, y: 646}, {x:  65, y: 646}, {x:  87, y: 646}, {x:  43, y: 668}, {x:  65, y: 668}, {x:  87, y: 668}],
+      sailing:    [{x: 107, y: 646}, {x: 129, y: 646}, {x: 151, y: 646}, {x: 107, y: 668}, {x: 129, y: 668}, {x: 151, y: 668}],
+      market:     [{x: 171, y: 646}, {x: 193, y: 646}, {x: 215, y: 646}, {x: 171, y: 668}, {x: 193, y: 668}, {x: 215, y: 668}],
+      monarchy:   [{x: 235, y: 646}, {x: 257, y: 646}, {x: 279, y: 646}, {x: 235, y: 668}, {x: 257, y: 668}, {x: 279, y: 668}],
+      road:       [{x:  43, y: 718}, {x:  65, y: 718}, {x:  87, y: 718}, {x:  43, y: 740}, {x:  65, y: 740}, {x:  87, y: 740}],
+      navigation: [{x: 107, y: 718}, {x: 129, y: 718}, {x: 151, y: 718}, {x: 107, y: 740}, {x: 129, y: 740}, {x: 151, y: 740}],
+      currency:   [{x: 171, y: 718}, {x: 193, y: 718}, {x: 215, y: 718}, {x: 171, y: 740}, {x: 193, y: 740}, {x: 215, y: 740}],
+      democracy:  [{x: 235, y: 718}, {x: 257, y: 718}, {x: 279, y: 718}, {x: 235, y: 740}, {x: 257, y: 740}, {x: 279, y: 740}],
     }[rondel_space]

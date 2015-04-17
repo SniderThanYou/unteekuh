@@ -7,7 +7,7 @@ class Game
 
   embeds_many :players
   embeds_one :rondel, autobuild: true
-  embeds_one :techs, autobuild: true
+  embeds_one :tech_panel, autobuild: true
   embeds_many :tiles
 
   module State
@@ -66,11 +66,11 @@ class Rondel
   field :maneuver2, type: Array, default: []
 end
 
-class Techs
+class TechPanel
   include Mongoid::Document
   embedded_in :game
   embeds_one :wheel, autobuild: true
-  embeds_one :roads, autobuild: true
+  embeds_one :road, autobuild: true
   embeds_one :sailing, autobuild: true
   embeds_one :navigation, autobuild: true
   embeds_one :market, autobuild: true
@@ -84,56 +84,56 @@ class Wheel
   field :cost_first, type: Integer, default: 7
   field :cost_rest, type: Integer, default: 3
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
-class Roads
+class Road
   include Mongoid::Document
   field :cost_first, type: Integer, default: 10
   field :cost_rest, type: Integer, default: 5
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 class Sailing
   include Mongoid::Document
   field :cost_first, type: Integer, default: 7
   field :cost_rest, type: Integer, default: 3
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 class Navigation
   include Mongoid::Document
   field :cost_first, type: Integer, default: 10
   field :cost_rest, type: Integer, default: 5
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 class Market
   include Mongoid::Document
   field :cost_first, type: Integer, default: 7
   field :cost_rest, type: Integer, default: 3
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 class Currency
   include Mongoid::Document
   field :cost_first, type: Integer, default: 10
   field :cost_rest, type: Integer, default: 5
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 class Monarchy
   include Mongoid::Document
   field :cost_first, type: Integer, default: 7
   field :cost_rest, type: Integer, default: 3
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 class Democracy
   include Mongoid::Document
   field :cost_first, type: Integer, default: 10
   field :cost_rest, type: Integer, default: 5
   field :owners, type: Array, default: []
-  embedded_in :techs
+  embedded_in :tech_panel
 end
 
 class Tile

@@ -107,6 +107,25 @@ class GameGateway
     game.save
   end
 
+  def set_starting_techs
+    tech = tech_by_name('wheel')
+    tech.save
+    tech = tech_by_name('road')
+    tech.save
+    tech = tech_by_name('sailing')
+    tech.save
+    tech = tech_by_name('navigation')
+    tech.save
+    tech = tech_by_name('market')
+    tech.save
+    tech = tech_by_name('currency')
+    tech.save
+    tech = tech_by_name('monarchy')
+    tech.save
+    tech = tech_by_name('democracy')
+    tech.save
+  end
+
 ########################################################
 ###              rondel movement
 ########################################################
@@ -164,7 +183,7 @@ class GameGateway
 
   def player_has_prerequisite_for_tech?(player_id, tech_name)
     case tech_name
-      when 'roads'
+      when 'road'
         player_has_tech?(player_id, 'wheel')
       when 'navigation'
         player_has_tech?(player_id, 'sailing')
@@ -305,7 +324,7 @@ class GameGateway
   private
 
   def tech_by_name(tech_name)
-    find_by_id.techs.send(tech_name)
+    find_by_id.tech_panel.send(tech_name)
   end
 
   def tile_by_name(city_name)
@@ -324,9 +343,9 @@ class GameGateway
         resources += tile.has_temple ? 3 : 1
       end
     end
-    if game.techs.currency.owners.include? player_id
+    if game.tech_panel.currency.owners.include? player_id
       resources += 2
-    elsif game.techs.market.owners.include? player_id
+    elsif game.tech_panel.market.owners.include? player_id
       resources += 1
     end
     resources

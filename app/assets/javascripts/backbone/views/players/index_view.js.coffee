@@ -5,8 +5,8 @@ class Unteekuh.Views.Players.IndexView extends Backbone.View
 
   initialize: () ->
     @options.players.bind('reset', @addAll)
-    @options.players.bind('reset', @render);
-    @options.players.bind('add', @render);
+    @options.players.bind('reset', @render)
+    @options.players.bind('add', @render)
 
   addAll: () =>
     @options.players.each(@addOne)
