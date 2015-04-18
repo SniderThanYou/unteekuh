@@ -45,62 +45,69 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     @players.fetch()
     console.log(@model)
 
-    if (!@model.inPlayerSignup())
-      self = this
-
-      c = this.$('#game_board')[0]
-      ctx = c.getContext("2d");
-      board = new Image();
-      board.src = unteekuh.paths.assets("assets/orient.jpg");
-      board.onload = ->
-        ctx.drawImage(board, 0, 0);
-        self.drawTiles(ctx)
-        self.drawRondel(ctx)
-        self.drawTechs(ctx)
+    @drawGameBoard() unless @model.inPlayerSignup()
 
     return this
 
-  drawTiles : (ctx) ->
+  drawGameBoard : ->
+    stage = new createjs.Stage(@$('#game_board')[0])
+
+    board = new Image()
+    board.src = unteekuh.paths.assets("assets/orient.jpg")
+    board.onload = ->
+      stage.update()
+
+    stage.addChild(new createjs.Bitmap(board))
+    @addTiles(stage)
+    @addRondel(stage)
+    @addTechs(stage)
+    stage.update()
+
+  addTiles : (stage) ->
     for tile in @model.get('tiles')
       if tile.owner?
         color = @model.playerColor(tile.owner)
         cityCoord = @cityCoordinates(tile.name)
-        @drawCity(ctx, color, cityCoord.x, cityCoord.y)
+        @addCity(stage, color, cityCoord.x, cityCoord.y)
 
         if tile.has_temple
-          @drawTempleOnCity(ctx, cityCoord.x, cityCoord.y)
+          @addTempleToCity(stage, cityCoord.x, cityCoord.y)
 
-  drawCity : (ctx, color, x, y) ->
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, 11, 0, Math.PI*2, true);
-    ctx.closePath();
-    ctx.fill();
-      
-  drawTempleOnCity : (ctx, x, y) ->
-    ctx.fillStyle = 'white'
-    ctx.strokeStyle = 'black'
-    ctx.beginPath()
-    ctx.moveTo(x - 4, y + 5)
-    ctx.lineTo(x - 4, y - 1)
-    ctx.lineTo(x - 7, y - 1)
-    ctx.lineTo(x, y - 7)
-    ctx.lineTo(x + 7, y - 1)
-    ctx.lineTo(x + 4, y - 1)
-    ctx.lineTo(x + 4, y + 5)
-    ctx.closePath()
-    ctx.fill()
-    ctx.stroke()
+  addCity : (stage, color, x, y) ->
+    shape = new createjs.Shape()
+    shape.graphics.beginFill(color);
+    shape.graphics.drawCircle(x, y, 11);
+    stage.addChild(shape);
 
-#  invertColor : (hexTripletColor) ->
-#    color = hexTripletColor;
-#    color = color.substring(1);
-#    color = parseInt(color, 16);
-#    color = 0xFFFFFF ^ color;
-#    color = color.toString(16);
-#    color = ("000000" + color).slice(-6);
-#    color = "#" + color;
-#    return color;
+  addTempleToCity : (stage, x, y) ->
+    shape = new createjs.Shape()
+    shape.graphics.beginStroke('black').beginFill('white')
+    shape.graphics.drawPolygon(x, y, [[-4, 5], [-4, -1], [-7, -1], [0, -7], [7, -1], [4, -1], [4, 5], [-4, 5]])
+    stage.addChild(shape);
+
+  addRondel : (stage) ->
+    rondel = @model.get('rondel')
+    for rondelLoc, playerIds of rondel
+      continue if rondelLoc == 'id'
+      for playerId, i in playerIds
+        color = @model.playerColor(playerId)
+        coord = @rondelCoordinates(rondelLoc)[i]
+        @addPeg(stage, color, coord.x, coord.y)
+
+  addPeg : (stage, color, x, y) ->
+    shape = new createjs.Shape()
+    shape.graphics.beginStroke('black').beginFill(color);
+    shape.graphics.drawPolyStar(x, y, 6, 8, 0, -22.5);
+    stage.addChild(shape);
+
+  addTechs : (stage) ->
+    techs = @model.get('tech_panel')
+    for techName, techDetails of techs
+      continue if techName == 'id'
+      for playerId, i in techDetails.owners
+        color = @model.playerColor(playerId)
+        coord = @techCoordinates(techName)[i]
+        @addPeg(stage, color, coord.x, coord.y)
 
   cityCoordinates : (city_name) ->
     {
@@ -130,7 +137,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       melitene: {x: 512, y: 173},
       memphis: {x: 484, y: 515},
       meroe: {x: 676, y: 740},
-      messana: {x: 42, y: 382},
+      messana: {x: 43, y: 382},
       moscha: {x: 1062, y: 480},
       napoca: {x: 124, y: 55},
       ninive: {x: 625, y: 192},
@@ -156,31 +163,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       zadrakarta: {x: 817, y: 75}
     }[city_name]
 
-  drawRondel : (ctx) ->
-    rondel = @model.get('rondel')
-    for rondelLoc, playerIds of rondel
-      continue if rondelLoc == 'id'
-      for playerId, i in playerIds
-        color = @model.playerColor(playerId)
-        coord = @rondelCoordinates(rondelLoc)[i]
-        @drawPeg(ctx, color, coord.x, coord.y)
-
-  drawPeg : (ctx, color, x, y) ->
-    ctx.fillStyle = color;
-    ctx.strokeStyle = 'black';
-    ctx.beginPath();
-    ctx.moveTo(x - 6, y - 3);
-    ctx.lineTo(x - 3, y - 6);
-    ctx.lineTo(x + 3, y - 6);
-    ctx.lineTo(x + 6, y - 3);
-    ctx.lineTo(x + 6, y + 3);
-    ctx.lineTo(x + 3, y + 6);
-    ctx.lineTo(x - 3, y + 6);
-    ctx.lineTo(x - 6, y + 3);
-    ctx.closePath();
-    ctx.fill();
-    ctx.stroke();
-
   rondelCoordinates : (rondel_space) ->
     {
       center:    [{x: 1037, y: 114}, {x: 1048, y: 129}, {x: 1037, y: 147}, {x: 1019, y: 147}, {x: 1008, y: 129}, {x: 1019, y: 114}],
@@ -193,15 +175,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       know_how:  [{x:  980, y: 120}, {x:  965, y: 120}, {x:  950, y: 120}, {x:  987, y: 103}, {x:  977, y:  93}, {x:  967, y:  83}],
       maneuver2: [{x: 1001, y:  92}, {x:  991, y:  82}, {x:  981, y:  72}, {x: 1017, y:  86}, {x: 1017, y:  71}, {x: 1017, y:  56}],
     }[rondel_space]
-
-  drawTechs : (ctx) ->
-    techs = @model.get('tech_panel')
-    for techName, techDetails of techs
-      continue if techName == 'id'
-      for playerId, i in techDetails.owners
-        color = @model.playerColor(playerId)
-        coord = @techCoordinates(techName)[i]
-        @drawPeg(ctx, color, coord.x, coord.y)
 
   techCoordinates : (rondel_space) ->
     {
