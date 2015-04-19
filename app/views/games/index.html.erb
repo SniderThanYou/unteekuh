@@ -27,6 +27,9 @@
         },
         start_game: function(id){
             return "<%= start_game_path('token_1')%>".replace('token_1', id);
+        },
+        move_on_rondel_game_player: function(game_id, player_id, rondel_loc){
+            return "<%= move_on_rondel_game_player_path('token_1', 'token_2', 'token_3')%>".replace('token_1', game_id).replace('token_2', player_id).replace('token_3', rondel_loc);
         }
     });
     $(function() {

@@ -24,10 +24,11 @@ class GameInteractor
     @game_gateway.start_playing
   end
 
-  def move_on_rondel(player_id, old_spot, new_spot, move_payment)
+  def move_on_rondel(player_id, new_spot, move_payment)
     verify_player_turn(player_id)
     verify_moving_on_rondel
-    total_payment = move_payment.values.inject{|sum,x| sum + x }
+    old_spot = @game_gateway.rondel_location_of_player(player_id)
+    total_payment = move_payment.values.inject(0){|sum,x| sum + x.to_i }
     cost = @game_gateway.cost_to_move_on_rondel(old_spot, new_spot)
     raise 'Each spot past the third costs one resource' unless total_payment == cost
 

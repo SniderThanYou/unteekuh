@@ -15,6 +15,10 @@ class GameGateway
     find_by_id.players
   end
 
+  def find_player_by_id(player_id)
+    find_by_id.players.where(id: player_id).limit(1).first
+  end
+
   def find_player_by_user_id(user_id)
     find_by_id.players.where(user_id: user_id).first
   end
@@ -26,27 +30,28 @@ class GameGateway
 
   def randomize_player_order
     game = find_by_id
-    game.player_order = player_ids.shuffle
+    game.player_order = player_ids.rotate(1)
     game.save
   end
 
-  def current_player?(user_id)
-    find_by_id.player_order.first == user_id
+  def current_player?(player_id)
+    find_by_id.player_order.first.to_s == player_id
   end
 
-  def add_resources_to_player(user_id, hash)
+  def add_resources_to_player(player_id, hash)
     h = resource_hash(hash)
-    player = find_player_by_user_id(user_id)
+    player = find_player_by_id(player_id)
     player.gold += h[:gold]
     player.marble += h[:marble]
     player.iron += h[:iron]
     player.coins += h[:coins]
+    player.save
   end
 
-  def subtract_resources_from_player(user_id, hash)
+  def subtract_resources_from_player(player_id, hash)
     h = resource_hash(hash)
-    player = find_player_by_user_id(user_id)
-    raise 'not enough minerals' unless self.has_resources(player, h)
+    player = find_player_by_id(player_id)
+    raise 'not enough minerals' unless has_resources(player, h)
     if player.gold >= h[:gold]
       player.gold -= h[:gold]
     else
@@ -130,16 +135,31 @@ class GameGateway
 ###              rondel movement
 ########################################################
 
+  def rondel_location_of_player(player_id)
+    rondel = find_by_id.rondel
+    return 'center' if rondel.center.any? {|id| id.to_s == player_id}
+    return 'iron' if rondel.iron.any? {|id| id.to_s == player_id}
+    return 'temple' if rondel.temple.any? {|id| id.to_s == player_id}
+    return 'gold' if rondel.gold.any? {|id| id.to_s == player_id}
+    return 'maneuver1' if rondel.maneuver1.any? {|id| id.to_s == player_id}
+    return 'arming' if rondel.arming.any? {|id| id.to_s == player_id}
+    return 'marble' if rondel.marble.any? {|id| id.to_s == player_id}
+    return 'know_how' if rondel.know_how.any? {|id| id.to_s == player_id}
+    return 'maneuver2' if rondel.maneuver2.any? {|id| id.to_s == player_id}
+    raise 'player is not on the rondel'
+  end
+
   def cost_to_move_on_rondel(old_spot, new_spot)
     return 0 if old_spot == 'center'
+    return 5 if old_spot == new_spot
     rondel_locations = ['iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
     distance = rondel_locations.rotate(rondel_locations.index(old_spot)).index(new_spot)
-    max(distance - 3, 0)
+    [distance - 3, 0].max
   end
 
   def move_player_on_rondel(player_id, old_spot, new_spot)
     rondel = find_by_id.rondel
-    rondel.send(old_spot).reject!{|x| x == player_id}
+    rondel.send(old_spot).reject!{|x| x.to_s == player_id}
     rondel.send(new_spot) << player_id
     rondel.save
   end
@@ -339,13 +359,13 @@ class GameGateway
     game = find_by_id
     resources = 0
     game.tiles.each do |tile|
-      if tile.owner == player_id && tile.resource == resource
+      if tile.owner.to_s == player_id && tile.resource == resource
         resources += tile.has_temple ? 3 : 1
       end
     end
-    if game.tech_panel.currency.owners.include? player_id
+    if game.tech_panel.currency.owners.any? {|id| id.to_s == player_id}
       resources += 2
-    elsif game.tech_panel.market.owners.include? player_id
+    elsif game.tech_panel.market.owners.any? {|id| id.to_s == player_id}
       resources += 1
     end
     resources

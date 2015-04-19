@@ -67,6 +67,11 @@ class PlayersController < ApplicationController
     end
   end
 
+  def move_on_rondel
+    GameInteractor.new(params[:game_id]).move_on_rondel(params[:id], params[:rondel_loc], params[:payment])
+    render nothing: true
+  end
+
   private
     # Use callbacks to share common setup or constraints between actions.
     def set_player

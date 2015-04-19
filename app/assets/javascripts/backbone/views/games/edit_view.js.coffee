@@ -58,10 +58,15 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       stage.update()
 
     stage.addChild(new createjs.Bitmap(board))
+    @addRondelDropZones(stage)
     @addTiles(stage)
     @addRondel(stage)
     @addTechs(stage)
     stage.update()
+
+    createjs.Ticker.addEventListener('tick', stage);
+    createjs.Ticker.setInterval(25);
+    createjs.Ticker.setFPS(60);
 
   addTiles : (stage) ->
     for tile in @model.get('tiles')
@@ -75,8 +80,8 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
 
   addCity : (stage, color, x, y) ->
     shape = new createjs.Shape()
-    shape.graphics.beginFill(color);
-    shape.graphics.drawCircle(x, y, 11);
+    shape.graphics.beginFill(color)
+    shape.graphics.drawCircle(x, y, 11)
     stage.addChild(shape);
 
   addTempleToCity : (stage, x, y) ->
@@ -85,6 +90,13 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     shape.graphics.drawPolygon(x, y, [[-4, 5], [-4, -1], [-7, -1], [0, -7], [7, -1], [4, -1], [4, 5], [-4, 5]])
     stage.addChild(shape);
 
+  addRondelDropZones : (stage) ->
+    for rondelLoc, coord of @rondelDropZoneCoordinates()
+      shape = new createjs.Shape()
+      shape.graphics.beginStroke('black')
+      shape.graphics.drawCircle(coord.x, coord.y, 25)
+      stage.addChild(shape)
+
   addRondel : (stage) ->
     rondel = @model.get('rondel')
     for rondelLoc, playerIds of rondel
@@ -92,13 +104,29 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       for playerId, i in playerIds
         color = @model.playerColor(playerId)
         coord = @rondelCoordinates(rondelLoc)[i]
-        @addPeg(stage, color, coord.x, coord.y)
+        @addRondelPeg(stage, color, coord.x, coord.y, playerId)
 
-  addPeg : (stage, color, x, y) ->
+  addRondelPeg : (stage, color, x, y, playerId) ->
     shape = new createjs.Shape()
     shape.graphics.beginStroke('black').beginFill(color);
-    shape.graphics.drawPolyStar(x, y, 6, 8, 0, -22.5);
+    shape.graphics.drawPolyStar(0, 0, 6, 8, 0, -22.5);
+    shape.x = x
+    shape.y = y
     stage.addChild(shape);
+
+    view = this
+    origX = 0
+    origY = 0
+    game = @model
+    shape.on 'mousedown', (evt) ->
+      origX = evt.stageX
+      origY = evt.stageY
+    shape.on 'pressmove', (evt) ->
+      evt.target.x = evt.stageX
+      evt.target.y = evt.stageY
+    shape.on 'pressup', (evt) ->
+      rondelLoc = view.nameOfRondelDropZone(evt.stageX, evt.stageY)
+      game.movePlayerToRondelLoc(playerId, rondelLoc, null)
 
   addTechs : (stage) ->
     techs = @model.get('tech_panel')
@@ -107,7 +135,13 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       for playerId, i in techDetails.owners
         color = @model.playerColor(playerId)
         coord = @techCoordinates(techName)[i]
-        @addPeg(stage, color, coord.x, coord.y)
+        @addTechPeg(stage, color, coord.x, coord.y)
+
+  addTechPeg : (stage, color, x, y) ->
+    shape = new createjs.Shape()
+    shape.graphics.beginStroke('black').beginFill(color);
+    shape.graphics.drawPolyStar(x, y, 6, 8, 0, -22.5);
+    stage.addChild(shape);
 
   cityCoordinates : (city_name) ->
     {
@@ -175,6 +209,28 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       know_how:  [{x:  980, y: 120}, {x:  965, y: 120}, {x:  950, y: 120}, {x:  987, y: 103}, {x:  977, y:  93}, {x:  967, y:  83}],
       maneuver2: [{x: 1001, y:  92}, {x:  991, y:  82}, {x:  981, y:  72}, {x: 1017, y:  86}, {x: 1017, y:  71}, {x: 1017, y:  56}],
     }[rondel_space]
+
+  rondelDropZoneCoordinates : ->
+    {
+      iron:      {x: 1053, y:  70},
+      temple:    {x: 1088, y: 106},
+      gold:      {x: 1088, y: 156},
+      maneuver1: {x: 1053, y: 192},
+      arming:    {x: 1003, y: 192},
+      marble:    {x:  967, y: 156},
+      know_how:  {x:  967, y: 106},
+      maneuver2: {x: 1003, y:  70}
+    }
+
+  nameOfRondelDropZone : (x, y) ->
+    for rondelLoc, coord of @rondelDropZoneCoordinates()
+      minDistance = 25;
+      xDist = coord.x - x;
+      yDist = coord.y - y;
+      distance = Math.sqrt(xDist*xDist + yDist*yDist);
+      if (distance < minDistance)
+        return rondelLoc
+    return ''
 
   techCoordinates : (rondel_space) ->
     {
