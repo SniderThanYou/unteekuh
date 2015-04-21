@@ -15,7 +15,7 @@ class Unteekuh.Models.Game extends Backbone.Model
   start : ->
     self = this
     $.ajax
-      url: unteekuh.paths.start_game(self.id)
+      url: Routes.start_game_path(self.id)
       type: 'POST'
       success: (data, status, response) ->
         self.fetch()
@@ -25,7 +25,7 @@ class Unteekuh.Models.Game extends Backbone.Model
     self = this
     payment = {gold: 0, marble: 0, iron: 0, coins: 0}
     $.ajax
-      url: unteekuh.paths.move_on_rondel_game_player(self.id, playerId, rondelLoc)
+      url: Routes.move_on_rondel_game_player_path(self.id, playerId, rondelLoc)
       data: {payment: payment}
       type: 'POST'
       success: (data, status, response) ->
@@ -35,4 +35,4 @@ class Unteekuh.Models.Game extends Backbone.Model
 
 class Unteekuh.Collections.GamesCollection extends Backbone.Collection
   model: Unteekuh.Models.Game
-  url: -> unteekuh.paths.games
+  url: -> Routes.games_path()

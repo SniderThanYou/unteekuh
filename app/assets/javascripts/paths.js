@@ -1,3 +1,0 @@
-unteekuh = {
-    paths: {}
-}

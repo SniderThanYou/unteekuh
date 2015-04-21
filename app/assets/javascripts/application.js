@@ -20,4 +20,5 @@
 //= require backbone/unteekuh
 //= require globalAjaxErrorHandling
 //= require easeljs-0.8.0.min
+//= require js-routes
 //= require_tree .

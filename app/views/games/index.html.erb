@@ -1,37 +1,10 @@
 <div id="games"></div>
-
+<style>
+    canvas {
+        background-image: url('/assets/orient.jpg');
+    }
+</style>
 <script type="text/javascript">
-    unteekuh.paths = $.extend(unteekuh.paths, {
-        assets: function(asset){
-            return "<%= asset_path('token_1')%>".replace('token_1', asset);
-        },
-        game_players: function(gameId){
-            return "<%= game_players_path('token_1')%>".replace('token_1', gameId);
-        },
-        new_game_player: function(gameId){
-            return "<%= new_game_player_path('token_1')%>".replace('token_1', gameId);
-        },
-        edit_game_player: function(game_id, player_id){
-            return "<%= edit_game_player_path('token_1', 'token_2')%>".replace('token_1', game_id).replace('token_2', player_id);
-        },
-        game_player: function(game_id, player_id){
-            return "<%= game_player_path('token_1', 'token_2')%>".replace('token_1', game_id).replace('token_2', player_id);
-        },
-        games: "<%= games_path %>",
-        new_game: "<%= new_game_path %>",
-        edit_game: function(id){
-            return "<%= edit_game_path('token_1')%>".replace('token_1', id);
-        },
-        game: function(id){
-            return "<%= game_path('token_1')%>".replace('token_1', id);
-        },
-        start_game: function(id){
-            return "<%= start_game_path('token_1')%>".replace('token_1', id);
-        },
-        move_on_rondel_game_player: function(game_id, player_id, rondel_loc){
-            return "<%= move_on_rondel_game_player_path('token_1', 'token_2', 'token_3')%>".replace('token_1', game_id).replace('token_2', player_id).replace('token_3', rondel_loc);
-        }
-    });
     $(function() {
         window.router = new Unteekuh.Routers.GamesRouter({games: <%= @games.as_json.to_json.html_safe -%>});
         Backbone.history.start();

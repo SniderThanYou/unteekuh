@@ -51,13 +51,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
 
   drawGameBoard : ->
     stage = new createjs.Stage(@$('#game_board')[0])
-
-    board = new Image()
-    board.src = unteekuh.paths.assets("assets/orient.jpg")
-    board.onload = ->
-      stage.update()
-
-    stage.addChild(new createjs.Bitmap(board))
     @addRondelDropZones(stage)
     @addTiles(stage)
     @addRondel(stage)
