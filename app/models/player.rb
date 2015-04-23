@@ -4,6 +4,8 @@ class Player
   field :name, type: String, default: ''
   field :color, type: String, default: '#ff0000' #hexadecimal, i.e. '#0700FF'
 
+  field :rondel_loc, type: String, default: 'center'
+
   field :gold, type: Integer, default: 3
   field :marble, type: Integer, default: 2
   field :iron, type: Integer, default: 1

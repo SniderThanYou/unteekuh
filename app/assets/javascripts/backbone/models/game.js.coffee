@@ -13,25 +13,22 @@ class Unteekuh.Models.Game extends Backbone.Model
         return player.color
 
   start : ->
-    self = this
     $.ajax
-      url: Routes.start_game_path(self.id)
+      url: Routes.start_game_path(@id)
       type: 'POST'
-      success: (data, status, response) ->
-        self.fetch()
+      success: (data, status, response) =>
+        @fetch()
 
   movePlayerToRondelLoc : (playerId, rondelLoc, payment) ->
-    console.log('moving')
-    self = this
     payment = {gold: 0, marble: 0, iron: 0, coins: 0}
     $.ajax
-      url: Routes.move_on_rondel_game_player_path(self.id, playerId, rondelLoc)
+      url: Routes.move_on_rondel_game_player_path(@id, playerId, rondelLoc)
       data: {payment: payment}
       type: 'POST'
-      success: (data, status, response) ->
-        self.fetch()
-      failure: (data, status, response) ->
-        self.fetch()
+      success: (data, status, response) =>
+        @fetch()
+      failure: (data, status, response) =>
+        @fetch()
 
 class Unteekuh.Collections.GamesCollection extends Backbone.Collection
   model: Unteekuh.Models.Game

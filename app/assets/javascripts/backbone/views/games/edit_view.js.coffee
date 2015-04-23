@@ -42,18 +42,18 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     this.$("form").backboneLink(@model)
 
     playersView = new Unteekuh.Views.Players.IndexView({el: @$('#players'), players: @players, inPlayerSignup: @model.inPlayerSignup()})
-    @players.fetch()
-    console.log(@model)
 
-    @drawGameBoard() unless @model.inPlayerSignup()
+    stage = new createjs.Stage(@$('#game_board')[0])
+    @drawGameBoard(stage) unless @model.inPlayerSignup()
+
+    @players.fetch()
 
     return this
 
-  drawGameBoard : ->
-    stage = new createjs.Stage(@$('#game_board')[0])
-    @addRondelDropZones(stage)
+  drawGameBoard: (stage) ->
+    rondel = new Unteekuh.Views.Games.RondelView({stage: stage, game: @model, players: @players})
+
     @addTiles(stage)
-    @addRondel(stage)
     @addTechs(stage)
     stage.update()
 
@@ -82,44 +82,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     shape.graphics.beginStroke('black').beginFill('white')
     shape.graphics.drawPolygon(x, y, [[-4, 5], [-4, -1], [-7, -1], [0, -7], [7, -1], [4, -1], [4, 5], [-4, 5]])
     stage.addChild(shape);
-
-  addRondelDropZones : (stage) ->
-    for rondelLoc, coord of @rondelDropZoneCoordinates()
-      shape = new createjs.Shape()
-      shape.graphics.beginStroke('black')
-      shape.graphics.drawCircle(coord.x, coord.y, 25)
-      stage.addChild(shape)
-
-  addRondel : (stage) ->
-    rondel = @model.get('rondel')
-    for rondelLoc, playerIds of rondel
-      continue if rondelLoc == 'id'
-      for playerId, i in playerIds
-        color = @model.playerColor(playerId)
-        coord = @rondelCoordinates(rondelLoc)[i]
-        @addRondelPeg(stage, color, coord.x, coord.y, playerId)
-
-  addRondelPeg : (stage, color, x, y, playerId) ->
-    shape = new createjs.Shape()
-    shape.graphics.beginStroke('black').beginFill(color);
-    shape.graphics.drawPolyStar(0, 0, 6, 8, 0, -22.5);
-    shape.x = x
-    shape.y = y
-    stage.addChild(shape);
-
-    view = this
-    origX = 0
-    origY = 0
-    game = @model
-    shape.on 'mousedown', (evt) ->
-      origX = evt.stageX
-      origY = evt.stageY
-    shape.on 'pressmove', (evt) ->
-      evt.target.x = evt.stageX
-      evt.target.y = evt.stageY
-    shape.on 'pressup', (evt) ->
-      rondelLoc = view.nameOfRondelDropZone(evt.stageX, evt.stageY)
-      game.movePlayerToRondelLoc(playerId, rondelLoc, null)
 
   addTechs : (stage) ->
     techs = @model.get('tech_panel')
@@ -189,41 +151,6 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       tyros: {x: 538, y: 359},
       zadrakarta: {x: 817, y: 75}
     }[city_name]
-
-  rondelCoordinates : (rondel_space) ->
-    {
-      center:    [{x: 1037, y: 114}, {x: 1048, y: 129}, {x: 1037, y: 147}, {x: 1019, y: 147}, {x: 1008, y: 129}, {x: 1019, y: 114}],
-      iron:      [{x: 1037, y:  80}, {x: 1037, y:  65}, {x: 1037, y:  50}, {x: 1058, y:  88}, {x: 1068, y:  78}, {x: 1078, y:  68}],
-      temple:    [{x: 1071, y: 100}, {x: 1081, y:  90}, {x: 1091, y:  80}, {x: 1078, y: 122}, {x: 1093, y: 122}, {x: 1108, y: 122}],
-      gold:      [{x: 1078, y: 140}, {x: 1093, y: 140}, {x: 1108, y: 140}, {x: 1071, y: 161}, {x: 1081, y: 171}, {x: 1091, y: 181}],
-      maneuver1: [{x: 1059, y: 174}, {x: 1069, y: 184}, {x: 1079, y: 194}, {x: 1038, y: 180}, {x: 1038, y: 195}, {x: 1038, y: 210}],
-      arming:    [{x: 1018, y: 180}, {x: 1018, y: 195}, {x: 1018, y: 210}, {x:  997, y: 174}, {x:  987, y: 184}, {x:  977, y: 194}],
-      marble:    [{x:  985, y: 160}, {x:  975, y: 170}, {x:  965, y: 180}, {x:  980, y: 142}, {x:  965, y: 142}, {x:  950, y: 142}],
-      know_how:  [{x:  980, y: 120}, {x:  965, y: 120}, {x:  950, y: 120}, {x:  987, y: 103}, {x:  977, y:  93}, {x:  967, y:  83}],
-      maneuver2: [{x: 1001, y:  92}, {x:  991, y:  82}, {x:  981, y:  72}, {x: 1017, y:  86}, {x: 1017, y:  71}, {x: 1017, y:  56}],
-    }[rondel_space]
-
-  rondelDropZoneCoordinates : ->
-    {
-      iron:      {x: 1053, y:  70},
-      temple:    {x: 1088, y: 106},
-      gold:      {x: 1088, y: 156},
-      maneuver1: {x: 1053, y: 192},
-      arming:    {x: 1003, y: 192},
-      marble:    {x:  967, y: 156},
-      know_how:  {x:  967, y: 106},
-      maneuver2: {x: 1003, y:  70}
-    }
-
-  nameOfRondelDropZone : (x, y) ->
-    for rondelLoc, coord of @rondelDropZoneCoordinates()
-      minDistance = 25;
-      xDist = coord.x - x;
-      yDist = coord.y - y;
-      distance = Math.sqrt(xDist*xDist + yDist*yDist);
-      if (distance < minDistance)
-        return rondelLoc
-    return ''
 
   techCoordinates : (rondel_space) ->
     {

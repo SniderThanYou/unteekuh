@@ -30,7 +30,7 @@ class GameGateway
 
   def randomize_player_order
     game = find_by_id
-    game.player_order = player_ids.rotate(1)
+    game.player_order = player_ids.rotate(1) #TODO shuffle
     game.save
   end
 
@@ -106,9 +106,11 @@ class GameGateway
     end
   end
 
-  def set_starting_rondel_positions
+  def set_starting_rondel_positions #TODO this can go away
     game = find_by_id
-    game.rondel.center = player_ids
+    game.players.each do |p|
+      p.rondel_loc = 'center'
+    end
     game.save
   end
 
@@ -135,21 +137,8 @@ class GameGateway
 ###              rondel movement
 ########################################################
 
-  def rondel_location_of_player(player_id)
-    rondel = find_by_id.rondel
-    return 'center' if rondel.center.any? {|id| id.to_s == player_id}
-    return 'iron' if rondel.iron.any? {|id| id.to_s == player_id}
-    return 'temple' if rondel.temple.any? {|id| id.to_s == player_id}
-    return 'gold' if rondel.gold.any? {|id| id.to_s == player_id}
-    return 'maneuver1' if rondel.maneuver1.any? {|id| id.to_s == player_id}
-    return 'arming' if rondel.arming.any? {|id| id.to_s == player_id}
-    return 'marble' if rondel.marble.any? {|id| id.to_s == player_id}
-    return 'know_how' if rondel.know_how.any? {|id| id.to_s == player_id}
-    return 'maneuver2' if rondel.maneuver2.any? {|id| id.to_s == player_id}
-    raise 'player is not on the rondel'
-  end
-
-  def cost_to_move_on_rondel(old_spot, new_spot)
+  def cost_to_move_on_rondel(new_spot)
+    old_spot = find_player_by_id(player_id).rondel_loc
     return 0 if old_spot == 'center'
     return 5 if old_spot == new_spot
     rondel_locations = ['iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
@@ -157,11 +146,10 @@ class GameGateway
     [distance - 3, 0].max
   end
 
-  def move_player_on_rondel(player_id, old_spot, new_spot)
-    rondel = find_by_id.rondel
-    rondel.send(old_spot).reject!{|x| x.to_s == player_id}
-    rondel.send(new_spot) << player_id
-    rondel.save
+  def move_player_on_rondel(player_id, new_spot)
+    player = find_player_by_id(player_id)
+    player.rondel_loc = new_spot
+    player.save
   end
 
 ########################################################

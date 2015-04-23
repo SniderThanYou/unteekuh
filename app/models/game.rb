@@ -6,14 +6,8 @@ class Game
   field :player_order, type: Array
 
   embeds_many :players
-  embeds_one :rondel, autobuild: true
   embeds_one :tech_panel, autobuild: true
   embeds_many :tiles
-
-  module State
-    PLAYER_SIGNUP = 'player_signup'
-    PLAYING = 'playing'
-  end
 
   state_machine :initial => :player_signup do
     event :start_playing do
@@ -50,20 +44,6 @@ class Game
     #   transition :claiming_great_people => :moving_on_rondel
     # end
   end
-end
-
-class Rondel
-  include Mongoid::Document
-  embedded_in :game
-  field :center, type: Array, default: []
-  field :iron, type: Array, default: []
-  field :temple, type: Array, default: []
-  field :gold, type: Array, default: []
-  field :maneuver1, type: Array, default: []
-  field :arming, type: Array, default: []
-  field :marble, type: Array, default: []
-  field :know_how, type: Array, default: []
-  field :maneuver2, type: Array, default: []
 end
 
 class TechPanel
