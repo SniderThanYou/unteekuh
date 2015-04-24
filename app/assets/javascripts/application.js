@@ -17,9 +17,10 @@
 //= require backbone
 //= require backbone_rails_sync
 //= require backbone_datalink
+//= require backbone.modal
 //= require backbone/unteekuh
 //= require globalAjaxErrorHandling
 //= require easeljs-0.8.0.min
-//= require backbone.modal
 //= require js-routes
 //= require_tree .
+Backbone.$ = window.$; //TODO why do I need this?
