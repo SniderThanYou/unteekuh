@@ -1,31 +1,21 @@
 class PlayersController < ApplicationController
   before_action :set_player, only: [:show, :edit, :update, :destroy]
+  before_action :verify_turn, only: [:move_on_rondel, :done_founding_cities]
 
-  # GET /players
-  # GET /players.json
   def index
-    @players = GameInteractor.new(params[:game_id]).list_players
-    respond_to do |format|
-      format.json { render json: @players }
-    end
+    render json: GameInteractor.new(params[:game_id]).list_players
   end
 
-  # GET /players/1
-  # GET /players/1.json
   def show
   end
 
-  # GET /players/new
   def new
     @player = Player.new
   end
 
-  # GET /players/1/edit
   def edit
   end
 
-  # POST /players
-  # POST /players.json
   def create
     @game = Game.find(params['game_id'])
     @player = GameInteractor.new(params['game_id']).add_player(current_user)
@@ -36,8 +26,6 @@ class PlayersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /players/1
-  # PATCH/PUT /players/1.json
   def update
     @game = Game.find(params['game_id'])
 
@@ -55,8 +43,6 @@ class PlayersController < ApplicationController
     end
   end
 
-  # DELETE /players/1
-  # DELETE /players/1.json
   def destroy
     raise 'game has started' unless @player.game.player_signup?
 
@@ -68,18 +54,33 @@ class PlayersController < ApplicationController
   end
 
   def move_on_rondel
-    GameInteractor.new(params[:game_id]).move_on_rondel(params[:id], params[:rondel_loc], params[:payment])
+    interactor.verify_user_turn(current_user.id)
+    interactor.move_on_rondel(params[:id], params[:rondel_loc], params[:payment])
+    render nothing: true
+  end
+
+  def done_founding_cities
+    interactor.finish_founding_cities(params[:id])
     render nothing: true
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_player
-      @player = PlayerGateway.new(params[:game_id]).find_by_id(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def player_params
-      params.require(:player).permit(:id, :name, :color)
-    end
+  def set_player
+    @player = PlayerGateway.new(params[:game_id]).find_by_id(params[:id])
+  end
+
+  def interactor
+    @interactor ||= GameInteractor.new(params[:game_id])
+    @interactor
+  end
+
+  def player_params
+    params.require(:player).permit(:id, :name, :color)
+  end
+
+  def verify_turn
+    interactor.verify_user_turn(current_user.id)
+    interactor.verify_player_turn(params[:id])
+  end
 end

@@ -62,7 +62,7 @@ class Unteekuh.Views.Games.RondelView extends Backbone.View
   movePlayer: (player, newRondelLoc) ->
     rondelLoc = player.get('rondel_loc')
     cost = @costToMove(rondelLoc, newRondelLoc)
-    
+
     modalView = new Unteekuh.Views.Games.MovePlayerView({
       game: @game,
       player: player,

@@ -6,6 +6,9 @@ module BSON
     def as_json(options={})
       to_s
     end
+    def ==(other)
+      to_s == other.to_s
+    end
   end
 end
 module Mongoid

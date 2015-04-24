@@ -1,42 +1,47 @@
 Unteekuh.Views.Games ||= {}
 
 class Unteekuh.Views.Games.EditView extends Backbone.View
-  template : JST["backbone/templates/games/edit"]
+  template: JST["backbone/templates/games/edit"]
 
-  events :
+  events:
     "submit #edit-game" : "update"
     "click #add_player" : "addPlayer"
     "click #start_game" : "startGame"
+    "click #done_founding_cities" : "doneFoundingCities"
 
-  initialize : (options) ->
+  initialize: (options) ->
+    console.log(Routes)
     @model.bind('sync:end', @render, this)
     @players = new Unteekuh.Collections.PlayersCollection([], {game_id: @model.id})
 
-  update : (e) ->
+  update: (e) ->
     e.preventDefault()
     e.stopPropagation()
 
     @model.save(null,
-      success : (game) =>
+      success: (game) =>
         @model = game
         window.location.hash = "/#{@model.id}"
     )
 
-  addPlayer : (e) ->
+  addPlayer: (e) ->
     player = new Unteekuh.Models.Player({game_id: @model.id})
     player.save(
       {},
-      success : (player) =>
+      success: (player) =>
         @players.add(player)
     )
 
-  startGame : (e) ->
+  startGame: (e) ->
     @model.start()
 
-  viewModel : ->
-    $.extend({inPlayerSignup: @model.inPlayerSignup()}, @model.attributes)
+  doneFoundingCities: (e) ->
+    @model.doneFoundingCities()
 
-  render : ->
+  viewModel: ->
+    $.extend({inPlayerSignup: @model.inPlayerSignup(), current_player: @model.currentPlayerName()}, @model.attributes)
+
+  render: ->
     $(@el).html(@template(@viewModel()))
 
     this.$("form").backboneLink(@model)
@@ -61,7 +66,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     createjs.Ticker.setInterval(25);
     createjs.Ticker.setFPS(60);
 
-  addTiles : (stage) ->
+  addTiles: (stage) ->
     for tile in @model.get('tiles')
       if tile.owner?
         color = @model.playerColor(tile.owner)
@@ -71,19 +76,19 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
         if tile.has_temple
           @addTempleToCity(stage, cityCoord.x, cityCoord.y)
 
-  addCity : (stage, color, x, y) ->
+  addCity: (stage, color, x, y) ->
     shape = new createjs.Shape()
     shape.graphics.beginFill(color)
     shape.graphics.drawCircle(x, y, 11)
     stage.addChild(shape);
 
-  addTempleToCity : (stage, x, y) ->
+  addTempleToCity: (stage, x, y) ->
     shape = new createjs.Shape()
     shape.graphics.beginStroke('black').beginFill('white')
     shape.graphics.drawPolygon(x, y, [[-4, 5], [-4, -1], [-7, -1], [0, -7], [7, -1], [4, -1], [4, 5], [-4, 5]])
     stage.addChild(shape);
 
-  addTechs : (stage) ->
+  addTechs: (stage) ->
     techs = @model.get('tech_panel')
     for techName, techDetails of techs
       continue if techName == 'id'
@@ -92,13 +97,13 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
         coord = @techCoordinates(techName)[i]
         @addTechPeg(stage, color, coord.x, coord.y)
 
-  addTechPeg : (stage, color, x, y) ->
+  addTechPeg: (stage, color, x, y) ->
     shape = new createjs.Shape()
     shape.graphics.beginStroke('black').beginFill(color);
     shape.graphics.drawPolyStar(x, y, 6, 8, 0, -22.5);
     stage.addChild(shape);
 
-  cityCoordinates : (city_name) ->
+  cityCoordinates: (city_name) ->
     {
       adane: {x: 909, y: 681},
       adulis: {x: 805, y: 699},
@@ -152,7 +157,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
       zadrakarta: {x: 817, y: 75}
     }[city_name]
 
-  techCoordinates : (rondel_space) ->
+  techCoordinates: (rondel_space) ->
     {
       wheel:      [{x:  43, y: 646}, {x:  65, y: 646}, {x:  87, y: 646}, {x:  43, y: 668}, {x:  65, y: 668}, {x:  87, y: 668}],
       sailing:    [{x: 107, y: 646}, {x: 129, y: 646}, {x: 151, y: 646}, {x: 107, y: 668}, {x: 129, y: 668}, {x: 151, y: 668}],

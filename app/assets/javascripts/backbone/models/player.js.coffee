@@ -1,6 +1,6 @@
 class Unteekuh.Models.Player extends Backbone.Model
   paramRoot: 'player'
-  urlRoot: -> Routes.game_players_path(@attributes.game_id)
+  urlRoot: -> Routes.game_players(@attributes.game_id)
 
   defaults:
     game_id: null
@@ -27,4 +27,4 @@ class Unteekuh.Collections.PlayersCollection extends Backbone.Collection
   model: Unteekuh.Models.Player
 
   initialize: (models, options) ->
-    @url = Routes.game_players_path(options.game_id);
+    @url = Routes.game_players(options.game_id);

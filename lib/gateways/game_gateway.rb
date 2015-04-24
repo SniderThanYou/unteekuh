@@ -20,7 +20,7 @@ class GameGateway
   end
 
   def find_player_by_user_id(user_id)
-    find_by_id.players.where(user_id: user_id).first
+    find_by_id.players.where(user_id: user_id).limit(1).first
   end
 
   def add_player(user)
@@ -35,7 +35,11 @@ class GameGateway
   end
 
   def current_player?(player_id)
-    find_by_id.player_order.first.to_s == player_id
+    find_by_id.player_order.first == player_id
+  end
+
+  def current_user?(user_id)
+    find_by_id.player_order.first == find_player_by_user_id(user_id).id
   end
 
   def add_resources_to_player(player_id, hash)
@@ -180,6 +184,10 @@ class GameGateway
 ###              know how action
 ########################################################
 
+  def tech_owned_by_any_players?(tech_name)
+    tech_by_name(tech_name).owners.empty?
+  end
+
   def player_has_tech?(player_id, tech_name)
     tech_by_name(tech_name).owners.include?(player_id)
   end
@@ -269,6 +277,76 @@ class GameGateway
   end
 
 ########################################################
+###              great people
+########################################################
+
+  def num_temples_owned(player_id)
+    find_by_id.tiles.count do |tile|
+      tile.owner == player_id && tile.has_temple
+    end
+  end
+
+  def num_cities_owned(player_id)
+    find_by_id.tiles.count do |tile|
+      tile.owner == player_id
+    end
+  end
+
+  def num_seas_sailed(player_id)
+    find_by_id.tiles.count do |tile|
+      tile.boats.include? player_id
+    end
+  end
+
+  def great_kings_owned(player_id)
+    find_player_by_id(player_id).great_kings
+  end
+
+  def great_scholars_owned(player_id)
+    find_player_by_id(player_id).great_scholars
+  end
+
+  def great_generals_owned(player_id)
+    find_player_by_id(player_id).great_generals
+  end
+
+  def great_citizens_owned(player_id)
+    find_player_by_id(player_id).great_citizens
+  end
+
+  def great_navigators_owned(player_id)
+    find_player_by_id(player_id).great_navigators
+  end
+
+  def claim_great_king(player_id)
+    claim_great_person(player_id, 'king')
+  end
+
+  def claim_great_scholar(player_id)
+    claim_great_person(player_id, 'scholar')
+  end
+
+  def claim_great_general(player_id)
+    claim_great_person(player_id, 'general')
+  end
+
+  def claim_great_citizen(player_id)
+    claim_great_person(player_id, 'citizen')
+  end
+
+  def claim_great_navigator(player_id)
+    claim_great_person(player_id, 'navigator')
+  end
+
+  def claim_most_numerous_great_person(player_id)
+    game = find_by_id
+    type = %w(king scholar general citizen navigator).max do |a, b|
+      game.send("great_#{a}s") <=> game.send("great_#{b}s")
+    end
+    claim_great_person(player_id, type)
+  end
+
+########################################################
 ###              state stuff
 ########################################################
 
@@ -293,6 +371,7 @@ class GameGateway
   end
 
   def start_arming
+    add_coin_to_first_player
     find_by_id.start_arming
   end
 
@@ -320,14 +399,15 @@ class GameGateway
     find_by_id.ready_to_claim_great_people
   end
 
-  # def next_turn
-  #   tile = tile_by_name(city_name)
-  #   tile.troops_added_this_turn = 0
-  #   tile.save
-  #   game = self.find_by_id
-  #   game.player_order.rotate!(-1)
-  #   game.save
-  # end
+  def next_turn
+    game = self.find_by_id
+    game.tiles.each do |tile|
+      tile.troops_added_this_turn = 0
+    end
+    game.player_order.rotate!(1)
+    add_coin_to_first_player
+    game.next_turn
+  end
 
   private
 
@@ -374,5 +454,24 @@ class GameGateway
         iron: 0,
         coins: 0
     }.merge(h)
+  end
+
+  def add_coin_to_first_player
+    add_resources_to_player(find_by_id.player_order.first, {coins: 1})
+  end
+
+  def claim_great_person(player_id, type)
+    game = find_by_id
+    player = find_player_by_id(player_id)
+    getter = "great_#{type}s"
+    setter = "great_#{type}s="
+    game_count = game.send(getter)
+    if game_count > 0
+      game.send(setter, game_count - 1)
+      player_count = player.send(getter)
+      player.send(setter, player_count + 1)
+      game.save
+      player.save
+    end
   end
 end

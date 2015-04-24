@@ -24,8 +24,15 @@ class GameInteractor
     @game_gateway.start_playing
   end
 
+  def verify_user_turn(user_id)
+    raise 'Not your turn' unless @game_gateway.current_user?(user_id)
+  end
+
+  def verify_player_turn(player_id)
+    raise 'Not your turn' unless @game_gateway.current_player?(player_id)
+  end
+
   def move_on_rondel(player_id, new_spot, move_payment)
-    verify_player_turn(player_id)
     verify_moving_on_rondel
     total_payment = move_payment.values.inject(0){|sum,x| sum + x.to_i }
     cost = @game_gateway.cost_to_move_on_rondel(player_id, new_spot)
@@ -101,8 +108,10 @@ class GameInteractor
     verify_player_does_not_own_tech(player_id, tech_name)
     verify_player_has_prerequisite_tech(player_id, tech_name)
     g = @game_gateway.gold_cost_of_tech(tech_name)
+    first = @game_gateway.tech_owned_by_any_players?(tech_name)
     @game_gateway.subtract_resources_from_player(player_id, {gold: g})
     @game_gateway.research_tech(player_id, tech_name)
+    @game_gateway.claim_great_scholar(player_id) if first
   end
 
   def finish_researching_techs(player_id)
@@ -123,6 +132,8 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_founding_cities
     ready_to_claim_great_people
+    claim_great_people(player_id)
+    @game_gateway.next_turn
   end
 
   private
@@ -133,10 +144,6 @@ class GameInteractor
 
   def verify_user_not_already_playing(user)
     raise 'You are already in this game' if @game_gateway.find_player_by_user_id(user.id)
-  end
-
-  def verify_player_turn(player_id)
-    raise 'Not your turn' unless @game_gateway.current_player?(player_id)
   end
 
   def verify_moving_on_rondel
@@ -231,7 +238,21 @@ class GameInteractor
     @game_gateway.ready_to_claim_great_people
   end
 
-  # def next_turn
-  #   @game_gateway.next_turn
-  # end
+  def claim_great_people(player_id)
+    @game_gateway.claim_great_king(player_id) while claim_great_king?(player_id)
+    @game_gateway.claim_great_citizen(player_id) while claim_great_citizen?(player_id)
+    @game_gateway.claim_great_navigator(player_id) while claim_great_navigator?(player_id)
+  end
+
+  def claim_great_king?(player_id)
+    @game_gateway.find_by_id.great_kings > 0 && (@game_gateway.num_cities_owned(player_id) / 5).floor > @game_gateway.great_kings_owned(player_id)
+  end
+
+  def claim_great_citizen?(player_id)
+    @game_gateway.find_by_id.great_citizens > 0 && (@game_gateway.num_temples_owned(player_id) / 3).floor > @game_gateway.great_citizens_owned(player_id)
+  end
+
+  def claim_great_navigator?(player_id)
+    @game_gateway.find_by_id.great_navigators > 0 && (@game_gateway.num_seas_sailed(player_id) / 7).floor > @game_gateway.great_navigators_owned(player_id)
+  end
 end

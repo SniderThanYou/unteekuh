@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     post '/start_game', action: :start_game, on: :member, as: :start
     resources :players do
       post '/move_on_rondel/:rondel_loc', action: :move_on_rondel, on: :member, as: :move_on_rondel
+      post '/done_founding_cities', action: :done_founding_cities, on: :member, as: :done_founding_cities
     end
   end
 end

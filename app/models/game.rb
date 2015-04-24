@@ -4,6 +4,11 @@ class Game
   include Mongoid::Document
   field :name, type: String
   field :player_order, type: Array
+  field :great_kings, type: Integer, default: 9
+  field :great_scholars, type: Integer, default: 8
+  field :great_generals, type: Integer, default: 7
+  field :great_citizens, type: Integer, default: 6
+  field :great_navigators, type: Integer, default: 5
 
   embeds_many :players
   embeds_one :tech_panel, autobuild: true
@@ -40,9 +45,9 @@ class Game
     event :ready_to_claim_great_people do
       transition :founding_cities => :claiming_great_people
     end
-    # event :next_turn do
-    #   transition :claiming_great_people => :moving_on_rondel
-    # end
+    event :next_turn do
+      transition :claiming_great_people => :moving_on_rondel
+    end
   end
 end
 
