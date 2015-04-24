@@ -13,4 +13,6 @@
  *= require_tree .
  *= require_self
  *= require jquery.minicolors
+ *= require backbone.modal
+ *= require backbone.modal.theme
  */

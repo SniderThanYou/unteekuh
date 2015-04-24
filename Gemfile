@@ -49,6 +49,7 @@ gem 'state_machine'
 gem 'rails-backbone'
 gem 'jquery-minicolors-rails'
 gem 'js-routes'
+gem 'jquery-ui-rails'
 group :development, :test do
   gem 'rspec-rails'
 end

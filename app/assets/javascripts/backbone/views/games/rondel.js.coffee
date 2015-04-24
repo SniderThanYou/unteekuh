@@ -54,10 +54,44 @@ class Unteekuh.Views.Games.RondelView extends Backbone.View
       evt.target.x = evt.stageX
       evt.target.y = evt.stageY
     shape.on 'pressup', (evt) =>
+      rondelLoc = @nameOfRondelDropZone(evt.stageX, evt.stageY)
       evt.target.x = origX
       evt.target.y = origY
-      rondelLoc = @nameOfRondelDropZone(evt.stageX, evt.stageY)
-      @game.movePlayerToRondelLoc(player.id, rondelLoc, null)
+      @movePlayer(player, rondelLoc)
+
+  movePlayer: (player, newRondelLoc) ->
+    rondelLoc = player.get('rondel_loc')
+    cost = @costToMove(rondelLoc, newRondelLoc)
+    Backbone.$ = window.$ #TODO why do I need this?
+    Modal = Backbone.Modal.extend({
+      template: JST["backbone/templates/games/move_payment"],
+      submitEl: '#submit_move'
+      cancelEl: '#cancel_move'
+      initialize: (options) ->
+        @game = options.game
+        @player = options.player
+        @cost = options.cost
+        @rondelLoc = options.rondelLoc
+        console.log(options)
+        @model = new Backbone.Model({
+          cost: options.cost,
+          new_rondel_loc: options.rondelLoc,
+          gold: @player.get('gold'),
+          iron: @player.get('iron'),
+          marble: @player.get('marble'),
+          coins: @player.get('coins')
+        })
+      submit: ->
+        payment = {
+          gold: @$('#gold_spinner').val(),
+          marble: @$('#marble_spinner').val(),
+          iron: @$('#iron_spinner').val(),
+          coins: @$('#coins_spinner').val()
+        }
+        @game.movePlayerToRondelLoc(@player.id, @rondelLoc, payment)
+    });
+    modalView = new Modal({game: @game, player: player, cost: cost, rondelLoc: newRondelLoc});
+    $('#hidden_modal').html(modalView.render().el);
 
   getRondelCoordinates: ->
     {
@@ -93,3 +127,15 @@ class Unteekuh.Views.Games.RondelView extends Backbone.View
       if (distance < minDistance)
         return rondelLoc
     return ''
+
+  costToMove: (oldLoc, newLoc) ->
+    if oldLoc == 'center'
+      return 0
+    if oldLoc == newLoc
+      return 5
+    locs = ['iron', 'temple', 'gold', 'maneuver1', 'arming', 'marble', 'know_how', 'maneuver2']
+    oldLocIdx = locs.indexOf(oldLoc)
+    newLocIdx = locs.indexOf(newLoc)
+    dist = newLocIdx - oldLocIdx
+    dist += 8 if dist < 0
+    return Math.max(dist - 3, 0)

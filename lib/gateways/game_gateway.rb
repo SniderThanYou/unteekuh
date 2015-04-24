@@ -137,7 +137,7 @@ class GameGateway
 ###              rondel movement
 ########################################################
 
-  def cost_to_move_on_rondel(new_spot)
+  def cost_to_move_on_rondel(player_id, new_spot)
     old_spot = find_player_by_id(player_id).rondel_loc
     return 0 if old_spot == 'center'
     return 5 if old_spot == new_spot

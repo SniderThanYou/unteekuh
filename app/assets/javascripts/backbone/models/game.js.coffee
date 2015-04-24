@@ -20,7 +20,6 @@ class Unteekuh.Models.Game extends Backbone.Model
         @fetch()
 
   movePlayerToRondelLoc : (playerId, rondelLoc, payment) ->
-    payment = {gold: 0, marble: 0, iron: 0, coins: 0}
     $.ajax
       url: Routes.move_on_rondel_game_player_path(@id, playerId, rondelLoc)
       data: {payment: payment}

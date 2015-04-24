@@ -28,7 +28,7 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_moving_on_rondel
     total_payment = move_payment.values.inject(0){|sum,x| sum + x.to_i }
-    cost = @game_gateway.cost_to_move_on_rondel(new_spot)
+    cost = @game_gateway.cost_to_move_on_rondel(player_id, new_spot)
     raise 'Each spot past the third costs one resource' unless total_payment == cost
 
     @game_gateway.subtract_resources_from_player(player_id, move_payment)
