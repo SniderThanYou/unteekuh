@@ -50,6 +50,8 @@ gem 'rails-backbone'
 gem 'jquery-minicolors-rails'
 gem 'js-routes'
 gem 'jquery-ui-rails'
-group :development, :test do
+
+group :test do
   gem 'rspec-rails'
+  gem 'fabrication'
 end
