@@ -193,7 +193,7 @@ class GameInteractor
   end
 
   def verify_city_has_no_temple(city_name)
-    raise "#{city_name} already has a temple" unless @game_gateway.has_temple?(city_name)
+    raise "#{city_name} already has a temple" if @game_gateway.has_temple?(city_name)
   end
 
   def verify_researching_tech

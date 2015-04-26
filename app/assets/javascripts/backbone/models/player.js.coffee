@@ -18,10 +18,6 @@ class Unteekuh.Models.Player extends Backbone.Model
     legion_pool: null
     galley_pool: null
     city_pool: null
-    wheel_level: null
-    sailing_level: null
-    market_level: null
-    monarchy_level: null
 
 class Unteekuh.Collections.PlayersCollection extends Backbone.Collection
   model: Unteekuh.Models.Player

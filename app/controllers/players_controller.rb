@@ -1,9 +1,21 @@
 class PlayersController < ApplicationController
   before_action :set_player, only: [:show, :edit, :update, :destroy]
-  before_action :verify_turn, only: [:move_on_rondel, :done_founding_cities]
+  before_action :verify_turn, only: [
+                                :move_on_rondel,
+                                :build_temple,
+                                :done_building_temples,
+                                :arm_footman,
+                                :arm_boat,
+                                :done_arming,
+                                :research_tech,
+                                :done_researching_techs,
+                                :done_founding_cities]
 
   def index
-    render json: GameInteractor.new(params[:game_id]).list_players
+    @players = GameInteractor.new(params[:game_id]).list_players
+    respond_to do |format|
+      format.json { render json: @players }
+    end
   end
 
   def show
@@ -59,6 +71,41 @@ class PlayersController < ApplicationController
     render nothing: true
   end
 
+  def build_temple
+    interactor.build_temple(params[:id], params[:city])
+    render nothing: true
+  end
+
+  def done_building_temples
+    interactor.finish_building_temples(params[:id])
+    render nothing: true
+  end
+
+  def arm_footman
+    interactor.arm_footman(params[:id], params[:city])
+    render nothing: true
+  end
+
+  def arm_boat
+    interactor.arm_footman(params[:id], params[:city])
+    render nothing: true
+  end
+
+  def done_arming
+    interactor.finish_arming(params[:id])
+    render nothing: true
+  end
+
+  def research_tech
+    interactor.research_tech(params[:id], params[:tech])
+    render nothing: true
+  end
+
+  def done_researching_techs
+    interactor.finish_researching_techs(params[:id])
+    render nothing: true
+  end
+
   def done_founding_cities
     interactor.finish_founding_cities(params[:id])
     render nothing: true
@@ -80,7 +127,8 @@ class PlayersController < ApplicationController
   end
 
   def verify_turn
+    puts current_user.id
     interactor.verify_user_turn(current_user.id)
     interactor.verify_player_turn(params[:id])
   end
-end
+  end

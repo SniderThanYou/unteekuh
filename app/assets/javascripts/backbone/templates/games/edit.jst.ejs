@@ -20,6 +20,9 @@
 
 <%= current_player %>'s turn<br>
 <%= state %>
+<%if (state == "building_temples") {%><button id="done_building_temples">Done</button><%}%>
+<%if (state == "arming") {%><button id="done_arming">Done</button><%}%>
+<%if (state == "researching_techs") {%><button id="done_researching_techs">Done</button><%}%>
 <%if (state == "founding_cities") {%><button id="done_founding_cities">Done</button><%}%>
 
 <br>

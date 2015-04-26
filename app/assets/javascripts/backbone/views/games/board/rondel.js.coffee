@@ -1,3 +1,5 @@
+Unteekuh.Views.Games ||= {}
+
 class Unteekuh.Views.Games.RondelView extends Backbone.View
   initialize: (options) ->
     @game = options.game
@@ -8,8 +10,9 @@ class Unteekuh.Views.Games.RondelView extends Backbone.View
     @rondelDropZoneCoordinates = @getRondelDropZoneCoordinates()
 
   render: ->
-    @addRondelDropZones(@stage)
     @draw(@stage)
+    if @game.inMovingOnRondel()
+      @addRondelDropZones(@stage)
 
   draw: (stage) ->
     rondel = {
@@ -45,19 +48,20 @@ class Unteekuh.Views.Games.RondelView extends Backbone.View
     shape.y = y
     stage.addChild(shape)
 
-    origX = 0
-    origY = 0
-    shape.on 'mousedown', (evt) ->
-      origX = evt.stageX
-      origY = evt.stageY
-    shape.on 'pressmove', (evt) ->
-      evt.target.x = evt.stageX
-      evt.target.y = evt.stageY
-    shape.on 'pressup', (evt) =>
-      rondelLoc = @nameOfRondelDropZone(evt.stageX, evt.stageY)
-      evt.target.x = origX
-      evt.target.y = origY
-      @movePlayer(player, rondelLoc)
+    if @game.inMovingOnRondel() && @game.currentPlayerId() == player.id
+      origX = 0
+      origY = 0
+      shape.on 'mousedown', (evt) ->
+        origX = evt.stageX
+        origY = evt.stageY
+      shape.on 'pressmove', (evt) ->
+        evt.target.x = evt.stageX
+        evt.target.y = evt.stageY
+      shape.on 'pressup', (evt) =>
+        rondelLoc = @nameOfRondelDropZone(evt.stageX, evt.stageY)
+        evt.target.x = origX
+        evt.target.y = origY
+        @movePlayer(player, rondelLoc)
 
   movePlayer: (player, newRondelLoc) ->
     rondelLoc = player.get('rondel_loc')

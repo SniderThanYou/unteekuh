@@ -281,19 +281,19 @@ class GameGateway
 ########################################################
 
   def num_temples_owned(player_id)
-    find_by_id.tiles.count do |tile|
+    find_by_id.tiles.to_a.count do |tile|
       tile.owner == player_id && tile.has_temple
     end
   end
 
   def num_cities_owned(player_id)
-    find_by_id.tiles.count do |tile|
+    find_by_id.tiles.to_a.count do |tile|
       tile.owner == player_id
     end
   end
 
   def num_seas_sailed(player_id)
-    find_by_id.tiles.count do |tile|
+    find_by_id.tiles.to_a.count do |tile|
       tile.boats.include? player_id
     end
   end
@@ -405,8 +405,8 @@ class GameGateway
       tile.troops_added_this_turn = 0
     end
     game.player_order.rotate!(1)
-    add_coin_to_first_player
     game.next_turn
+    add_coin_to_first_player
   end
 
   private
@@ -448,12 +448,12 @@ class GameGateway
   end
 
   def resource_hash(h)
-    {
-        gold: 0,
-        marble: 0,
-        iron: 0,
-        coins: 0
-    }.merge(h)
+    r = {}
+    r[:gold] = h[:gold] ? h[:gold].to_i : 0
+    r[:marble] = h[:marble] ? h[:marble].to_i : 0
+    r[:iron] = h[:iron] ? h[:iron].to_i : 0
+    r[:coins] = h[:coins] ? h[:coins].to_i : 0
+    r
   end
 
   def add_coin_to_first_player

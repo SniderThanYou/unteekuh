@@ -21,10 +21,5 @@ class Player
   field :galley_pool, type: Integer, default: 17
   field :city_pool, type: Integer, default: 22 #plus three on the board
 
-  field :wheel_level, type: Integer, default: 0
-  field :sailing_level, type: Integer, default: 0
-  field :market_level, type: Integer, default: 0
-  field :monarchy_level, type: Integer, default: 0
-
   embedded_in :game
 end
