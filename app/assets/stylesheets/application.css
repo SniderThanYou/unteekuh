@@ -16,3 +16,46 @@
  *= require backbone.modal
  *= require backbone.modal.theme
  */
+
+.icon {
+    width: 25px;
+    height: 25px;
+    padding: 0px;
+    background-size: 25px 25px;
+}
+
+.gold {
+    background-image: url('/assets/gold.jpg');
+}
+
+.marble {
+    background-image: url('/assets/marble.jpg');
+}
+
+.iron {
+    background-image: url('/assets/iron.jpg');
+}
+
+.coins {
+    background-image: url('/assets/coin.jpg');
+}
+
+.great_king {
+    background-image: url('/assets/great_king.jpg');
+}
+
+.great_scholar {
+    background-image: url('/assets/great_scholar.jpg');
+}
+
+.great_general {
+    background-image: url('/assets/great_general.jpg');
+}
+
+.great_citizen {
+    background-image: url('/assets/great_citizen.jpg');
+}
+
+.great_navigator {
+    background-image: url('/assets/great_navigator.jpg');
+}
