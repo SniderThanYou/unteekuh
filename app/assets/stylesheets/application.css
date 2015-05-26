@@ -20,8 +20,15 @@
 .icon {
     width: 25px;
     height: 25px;
-    padding: 0px;
+    padding: 0;
     background-size: 25px 25px;
+}
+
+.great_icon {
+    width: 30px;
+    height: 25px;
+    padding: 0;
+    background-size: 30px 25px;
 }
 
 .gold {

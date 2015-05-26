@@ -131,4 +131,4 @@ class PlayersController < ApplicationController
     interactor.verify_user_turn(current_user.id)
     interactor.verify_player_turn(params[:id])
   end
-  end
+end

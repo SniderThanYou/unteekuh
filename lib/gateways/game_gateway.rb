@@ -246,14 +246,20 @@ class GameGateway
 
   def arm_footman(city_name, player_id)
     tile = tile_by_name(city_name)
-    tile.footmen << player_id
+    tile.troops << Troop.new(
+        troop_type: 'legion',
+        owner: player_id
+    )
     tile.troops_added_this_turn += 1
     tile.save
   end
 
   def arm_boat(city_name, player_id)
     tile = tile_by_name(city_name)
-    tile.boats << player_id
+    tile.troops << Troop.new(
+        troop_type: 'galley',
+        owner: player_id
+    )
     tile.troops_added_this_turn += 1
     tile.save
   end

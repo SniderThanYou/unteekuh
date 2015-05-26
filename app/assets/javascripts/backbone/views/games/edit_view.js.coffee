@@ -53,6 +53,7 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     $.extend({inPlayerSignup: @model.inPlayerSignup(), current_player: @model.currentPlayerName()}, @model.attributes)
 
   render: ->
+    console.log(@model)
     $(@el).html(@template(@viewModel()))
 
     this.$("form").backboneLink(@model)
@@ -72,6 +73,9 @@ class Unteekuh.Views.Games.EditView extends Backbone.View
     cities.render()
     techs = new Unteekuh.Views.Games.TechsView({stage: stage, game: @model})
     techs.render()
+    troops = new Unteekuh.Views.Games.TroopsView({stage: stage, game: @model, players: @players})
+    troops.render()
+
     stage.update()
 
     createjs.Ticker.addEventListener('tick', stage);

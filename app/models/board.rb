@@ -7,8 +7,7 @@ class Board
           resource: resource_types[city],
           owner: nil,
           has_temple: false,
-          footmen: [],
-          boats: [],
+          troops: [],
           ground_connections: land_connections[city],
           water_connections: water_connections[city]
       }
@@ -129,7 +128,7 @@ class Board::Orient < Board
         :zadrakarta
     ]
   end
-  
+
   def resource_types
     {
         adane: :iron,
@@ -295,25 +294,3 @@ class Board::Orient < Board
     }
   end
 end
-
-# class Tile
-#   include Mongoid::Document
-#   field :name, type: String
-#   field :resource, type: String
-#   field :owner, type: BSON::ObjectId, default: nil
-#   field :has_temple, type: Boolean, default: false
-#   field :ground_connections, type: Array, default: []
-#   field :water_connections, type: Array, default: []
-#   embeds_many :footmen
-#   embeds_many :boats
-# end
-#
-# class Footman
-#   include Mongoid::Document
-#   embedded_in :tile
-# end
-#
-# class Boat
-#   include Mongoid::Document
-#   embedded_in :tile
-# end

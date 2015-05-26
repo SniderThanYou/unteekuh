@@ -127,11 +127,19 @@ class Tile
   field :resource, type: String
   field :owner, type: BSON::ObjectId
   field :has_temple, type: Boolean
-  field :footmen, type: Array
-  field :boats, type: Array
   field :ground_connections, type: Array
   field :water_connections, type: Array
   field :troops_added_this_turn, type: Integer, default: 0
 
   embedded_in :game
+  embeds_many :troops
+end
+
+class Troop
+  include Mongoid::Document
+  field :troop_type, type: String #legion, galley
+  field :owner, type: BSON::ObjectId
+  field :movement_points, type: Integer, default: 0
+
+  embedded_in :tile
 end
