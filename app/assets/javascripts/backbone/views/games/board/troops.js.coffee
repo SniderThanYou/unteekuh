@@ -13,17 +13,24 @@ class Unteekuh.Views.Games.TroopsView extends Backbone.View
   draw: (stage) ->
     for tile in @game.get('tiles')
       cityCoord = @cityCoordinates[tile.name]
-      pts = @circularPoints(10, cityCoord.x, cityCoord.y)
-      console.log(pts)
-      for pt in pts
-        @addLegion(stage, 'red', pt.x, pt.y)
-#      for troop in tile.troops
-#        @addTroopToTile(stage, tile, troop)
+      troops = tile.troops
+      if troops
+        pts = @circularPoints(troops.length, cityCoord.x, cityCoord.y)
+        for pt, i in pts
+          color = @game.playerColor(troops[i].owner_id)
+          if troops[i].troop_type == 'legion'
+            @addLegion(stage, color, pt.x, pt.y)
+          else if troops[i].troop_type == 'galley'
+            @addGalley(stage, color, pt.x, pt.y)
+          @addLine(stage, pt.x, pt.y, cityCoord.x, cityCoord.y)
 
-  addTroopToTile: (stage, tile, troop) ->
-    cityCoord = @cityCoordinates[tile.name]
-    color = @game.playerColor(troop.owner_id)
-    @addLegion(stage, troop.owner, cityCoord.x, cityCoord.y)
+  addLine: (stage, x1, y1, x2, y2) ->
+    line = new createjs.Shape()
+    line.graphics.setStrokeStyle(1).beginStroke('black');
+    line.graphics.moveTo(x1, y1)
+    line.graphics.lineTo(x2, y2)
+    line.graphics.endStroke()
+    stage.addChild(line)
 
   circularPoints: (numPoints, centerX, centerY) ->
     points = []
@@ -38,59 +45,56 @@ class Unteekuh.Views.Games.TroopsView extends Backbone.View
   addLegion: (stage, color, x, y) ->
     shape = new createjs.Shape()
     shape.graphics.beginStroke('black').beginFill(color)
-    points = [[0, 89],
-              [18, 89],
-              [23, 74],
-              [27, 89],
-              [45, 89],
-              [40, 71],
-              [45, 49],
-              [36, 30],
-              [30, 28],
-              [32, 18],
-              [31, 10],
-              [28, 7],
-              [31, 3],
-              [28, 0],
-              [21, 0],
-              [14, 2],
-              [9, 9],
-              [10, 14],
-              [10, 23],
-              [12, 25],
-              [12, 29],
-              [7, 31],
-              [3, 35],
-              [1, 46],
-              [0, 49],
-              [0, 53],
-              [6, 57],
-              [7, 59],
-              [4, 79]]
+    points = [[ 0 / 4, 89 / 4],
+              [18 / 4, 89 / 4],
+              [23 / 4, 74 / 4],
+              [27 / 4, 89 / 4],
+              [45 / 4, 89 / 4],
+              [40 / 4, 71 / 4],
+              [45 / 4, 49 / 4],
+              [36 / 4, 30 / 4],
+              [30 / 4, 28 / 4],
+              [32 / 4, 18 / 4],
+              [31 / 4, 10 / 4],
+              [28 / 4,  7 / 4],
+              [31 / 4,  3 / 4],
+              [28 / 4,  0 / 4],
+              [21 / 4,  0 / 4],
+              [14 / 4,  2 / 4],
+              [ 9 / 4,  9 / 4],
+              [10 / 4, 14 / 4],
+              [10 / 4, 23 / 4],
+              [12 / 4, 25 / 4],
+              [12 / 4, 29 / 4],
+              [ 7 / 4, 31 / 4],
+              [ 3 / 4, 35 / 4],
+              [ 1 / 4, 46 / 4],
+              [ 0 / 4, 49 / 4],
+              [ 0 / 4, 53 / 4],
+              [ 6 / 4, 57 / 4],
+              [ 7 / 4, 59 / 4],
+              [ 4 / 4, 79 / 4]]
     shape.graphics.drawPolygon(0, 0, points)
     shape.x = x - 5
     shape.y = y - 12
-    shape.scaleX = 0.25
-    shape.scaleY = 0.25
     stage.addChild(shape);
 
-  addCity: (stage, ownerId, x, y) ->
-    color = @game.playerColor(ownerId)
+  addGalley: (stage, color, x, y) ->
     shape = new createjs.Shape()
-    shape.graphics.beginFill(color)
-    shape.graphics.drawCircle(x, y, 11)
-    stage.addChild(shape);
-
-    if @game.inBuildingTemples() && @game.currentPlayerId() == ownerId
-      shape.on 'mousedown', (evt) =>
-        city = @nameOfCity(evt.stageX, evt.stageY)
-        if confirm("Build temple in " + city + "?")
-          @game.buildTemple(ownerId, city)
-
-  addTempleToCity: (stage, x, y) ->
-    shape = new createjs.Shape()
-    shape.graphics.beginStroke('black').beginFill('white')
-    shape.graphics.drawPolygon(x, y, [[-4, 5], [-4, -1], [-7, -1], [0, -7], [7, -1], [4, -1], [4, 5], [-4, 5]])
+    shape.graphics.beginStroke('black').beginFill(color)
+    points = [[12.5, 0],
+              [7.5, 7.5],
+              [-7.5, 7.5],
+              [-12.5, 0],
+              [-1.25, 0],
+              [-1.25, -10],
+              [1.25, -10],
+              [8.75, -2.5],
+              [1.25, -2.5],
+              [1.25, 0]]
+    shape.graphics.drawPolygon(0, 0, points)
+    shape.x = x
+    shape.y = y
     stage.addChild(shape);
 
   getCityCoordinates: ->

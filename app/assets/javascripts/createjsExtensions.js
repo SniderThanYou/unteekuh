@@ -11,7 +11,7 @@
         ctx.lineTo(point.x + offsetX, point.y + offsetY);
     });
     ctx.lineTo(start.x + offsetX, start.y + offsetY);
-}
+};
 createjs.Graphics.prototype.drawPolygon = function(x, y, args) {
     var points = [];
     if (Array.isArray(args)) {
@@ -32,4 +32,4 @@ createjs.Graphics.prototype.drawPolygon = function(x, y, args) {
         });
     }
     return this.append(new createjs.Graphics.Polygon(x, y, points));
-}
+};
