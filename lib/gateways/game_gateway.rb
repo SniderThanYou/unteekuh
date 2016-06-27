@@ -55,7 +55,7 @@ class GameGateway
   def subtract_resources_from_player(player_id, hash)
     h = resource_hash(hash)
     player = find_player_by_id(player_id)
-    raise 'not enough minerals' unless has_resources(player, h)
+    raise 'not enough minerals' unless has_resources?(player, h)
     if player.gold >= h[:gold]
       player.gold -= h[:gold]
     else
@@ -269,11 +269,90 @@ class GameGateway
   end
 
 ########################################################
+###              maneuver action
+########################################################
+
+  def player_owns_troop?(city_name, troop_id, player_id)
+    tile_by_name(city_name).troops.any? { |troop| troop.id == troop_id && troop.owner == player_id }
+  end
+
+  def troop_can_move?(city_name, troop_id)
+    tile_by_name(city_name).troops.detect{ |troop| troop.id == troop_id }.movement_points > 0
+  end
+  
+  def cities_connected?(city_from, city_to, troop_id)
+    troop_type = tile_by_name(city_from).detect{ |troop| troop.id == troop_id }.troop_type
+    tile = tile_by_name(city_from)
+    troop_type == 'legion' ?
+        !tile.land_connections[city_to].nil? :
+        !tile.water_connections[city_to].nil?
+  end
+
+  def move_troop(city_from, city_to, troop_id, player_id)
+    tile_from = tile_by_name(city_from)
+    tile_to = tile_by_name(city_to)
+
+    troop = tile_from.troops.detect{ |t| t.id == troop_id && t.player_id == player_id }
+
+    tile_from.troops.delete(troop)
+    tile_to.troops << troop
+    troop.movement_points -= 1
+
+    tile_from.save
+    tile_to.save
+    troop.save
+  end
+
+  def kill_troop(city_name, friendly_troop_id, player_id, enemy_player_id)
+    tile = tile_by_name(city_name)
+
+    friendly_troop = tile.troops.detect{ |t| t.id == friendly_troop_id && t.player_id == player_id }
+
+    enemy_troop = tile.troops.detect{ |t| t.troop_type == friendly_troop.troop_type && t.owner == enemy_player_id }
+    raise 'nonexistent enemy troop' unless enemy_troop
+
+    tile.troops.delete(friendly_troop)
+    tile.troops.delete(enemy_troop)
+
+    tile.save
+  end
+
+  def conquer_city(city_name, attacking_troop_ids, player_id)
+    tile = tile_by_name(city_name)
+    defender = tile.owner
+
+    attacking_troops = attacking_troop_ids.map{ |troop_id| tile.troops.detect{ |troop| troop.id == troop_id && troop.owner == player_id } }
+    num_attackers = attacking_troop_ids.length
+
+    defending_troops = tile.troops.detect{ |troop| troop.owner == defender }
+    num_defenders = defending_troops.length
+
+    defense = 1
+    #defense += 1 if player has <= 2 points
+    defense += 1 if player_has_tech?(defender, 'monarchy')
+    defense += 1 if player_has_tech?(defender, 'democracy')
+    defense += 2 if tile.has_temple
+    defense += num_defenders
+
+    raise "You selected #{num_attackers} troops to conquer a town with a defense of #{defense}" unless num_attackers == defense
+
+    tile.troops -= attacking_troops
+    tile.troops -= defending_troops
+    tile.has_temple = false
+    tile.owner = player_id
+    tile.save
+  end
+
+########################################################
 ###              founding cities
 ########################################################
 
   def owner_of(city_name)
     tile_by_name(city_name).owner
+  end
+
+  def has_troop_in_city?(city_name, player_id)
+    tile_by_name(city_name).troops.any? { |troop| troop.owner == player_id }
   end
 
   def found_city(city_name, player_id)
@@ -377,7 +456,6 @@ class GameGateway
   end
 
   def start_arming
-    add_coin_to_first_player
     find_by_id.start_arming
   end
 
@@ -391,6 +469,30 @@ class GameGateway
 
   def researching_techs?
     find_by_id.researching_techs?
+  end
+
+  def start_maneuvering
+    find_by_id.start_maneuvering
+  end
+
+  def maneuvering?
+    find_by_id.maneuvering?
+  end
+
+  def start_killing_troops
+    find_by_id.start_killing_troops
+  end
+
+  def killing_troops?
+    find_by_id.killing_troops?
+  end
+
+  def start_conquering
+    find_by_id.start_conquering
+  end
+
+  def conquering?
+    find_by_id.conquering?
   end
 
   def ready_to_found_cities
@@ -422,7 +524,7 @@ class GameGateway
   end
 
   def tile_by_name(city_name)
-    find_by_id.tiles.select{|t| t.name == city_name}.first
+    find_by_id.tiles.detect{|t| t.name == city_name}
   end
 
   def player_ids
@@ -445,7 +547,7 @@ class GameGateway
     resources
   end
 
-  def has_resources(player, h)
+  def has_resources?(player, h)
     used_coins = h[:coins]
     used_coins += h[:gold] - player.gold
     used_coins += h[:marble] - player.marble

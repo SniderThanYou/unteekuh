@@ -28,20 +28,17 @@ class Game
       transition :moving_on_rondel => :researching_techs
     end
     event :ready_to_found_cities do
-      transition [:moving_on_rondel, :building_temples, :arming, :researching_techs] => :founding_cities
+      transition [:moving_on_rondel, :building_temples, :arming, :researching_techs, :conquering] => :founding_cities
     end
-    # event :start_maneuvering do
-    #   transition :moving_on_rondel => :maneuvering
-    # end
-    # event :maveuver_into_hostile_territory do
-    #   transition :maneuvering => :waiting_for_combat_decision
-    # end
-    # event :combat_decided do
-    #   transition :waiting_for_combat_decision => :maneuvering
-    # end
-    # event :finish_maveuvering do
-    #   transition :maneuvering => :founding_cities
-    # end
+    event :start_maneuvering do
+      transition :moving_on_rondel => :maneuvering
+    end
+    event :start_killing_troops do
+      transition :maneuvering => :killing_troops
+    end
+    event :start_conquering do
+      transition :killing_troops => :conquering
+    end
     event :ready_to_claim_great_people do
       transition :founding_cities => :claiming_great_people
     end

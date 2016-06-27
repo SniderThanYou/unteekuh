@@ -49,6 +49,7 @@ class GameInteractor
       when 'gold'
         collect_gold(player_id)
       when 'maneuver1'
+        start_maneuvering
       when 'arming'
         start_arming
       when 'marble'
@@ -56,6 +57,7 @@ class GameInteractor
       when 'know_how'
         start_researching_techs
       when 'maneuver2'
+        start_maneuvering
       else
         raise 'Invalid new spot'
     end
@@ -120,10 +122,54 @@ class GameInteractor
     ready_to_found_cities
   end
 
+  def move_troop(city_from, city_to, troop_id, player_id)
+    verify_player_turn(player_id)
+    verify_maneuvering
+    verify_player_owns_troop(city_from, troop_id, player_id)
+    verify_troop_can_move(city_from, troop_id)
+    verify_cities_connected(city_from, city_to, troop_id)
+    @game_gateway.move_troop(city_from, city_to, troop_id, player_id)
+  end
+
+  def finish_moving_troops(player_id)
+    verify_player_turn(player_id)
+    verify_maneuvering
+    ready_to_kill_troops
+  end
+
+  def kill_troop(city_name, friendly_troop_id, player_id, enemy_player_id)
+    verify_player_turn(player_id)
+    verify_killing_troops
+    verify_player_owns_troop(city_name, friendly_troop_id, player_id)
+    @game_gateway.kill_troop(city_name, friendly_troop_id, player_id, enemy_player_id)
+  end
+
+  def finish_killing_troops(player_id)
+    verify_player_turn(player_id)
+    verify_killing_troops
+    ready_to_conquer_cities
+  end
+
+  def conquer_city(city_name, attacking_troop_ids, player_id)
+    verify_player_turn(player_id)
+    verify_conquering_cities
+    attacking_troop_ids.each do |troop_id|
+      verify_player_owns_troop(city_name, troop_id, player_id)
+    end
+    @game_gateway.conquer_city(city_name, attacking_troop_ids, player_id)
+  end
+
+  def finish_conquering_cities(player_id)
+    verify_player_turn(player_id)
+    verify_conquering_cities
+    ready_to_found_cities
+  end
+
   def found_city(player_id, city_name)
     verify_player_turn(player_id)
     verify_founding_cities
     verify_city_unowned(city_name)
+    verify_player_has_troop_on_city(city_name, player_id)
     @game_gateway.subtract_resources_from_player(player_id, {gold: 1, marble: 1, iron: 1})
     @game_gateway.found_city(city_name, player_id)
   end
@@ -184,6 +230,14 @@ class GameInteractor
     @game_gateway.start_researching_techs
   end
 
+  def start_maneuvering
+    @game_gateway.start_maneuvering
+  end
+
+  def start_conquering
+    @game_gateway.start_conquering
+  end
+
   def verify_building_temples
     raise 'Not time to build a temple' unless @game_gateway.building_temples?
   end
@@ -194,18 +248,6 @@ class GameInteractor
 
   def verify_city_has_no_temple(city_name)
     raise "#{city_name} already has a temple" if @game_gateway.has_temple?(city_name)
-  end
-
-  def verify_researching_tech
-    raise 'Not time to research a tech' unless @game_gateway.researching_techs?
-  end
-
-  def verify_player_does_not_own_tech(player_id, tech_name)
-    raise "You already own #{tech_name}" if @game_gateway.player_has_tech?(player_id, tech_name)
-  end
-
-  def verify_player_has_prerequisite_tech(player_id, tech_name)
-    raise "You do not own the prerequisite for #{tech_name}" unless @game_gateway.player_has_prerequisite_for_tech?(player_id, tech_name)
   end
 
   def verify_arming
@@ -226,12 +268,60 @@ class GameInteractor
     raise "You can only arm #{max_troops_in_city} in #{city_name} per turn" if max_capacity
   end
 
+  def verify_researching_tech
+    raise 'Not time to research a tech' unless @game_gateway.researching_techs?
+  end
+
+  def verify_player_does_not_own_tech(player_id, tech_name)
+    raise "You already own #{tech_name}" if @game_gateway.player_has_tech?(player_id, tech_name)
+  end
+
+  def verify_player_has_prerequisite_tech(player_id, tech_name)
+    raise "You do not own the prerequisite for #{tech_name}" unless @game_gateway.player_has_prerequisite_for_tech?(player_id, tech_name)
+  end
+
+  def verify_maneuvering
+    raise 'Not time to maneuver' unless @game_gateway.maneuvering?
+  end
+
+  def verify_player_owns_troop(city_name, troop_id, player_id)
+    raise 'Nonexistent troop' unless @game_gateway.player_owns_troop?(city_name, troop_id, player_id)
+  end
+
+  def verify_troop_can_move(city_name, troop_id)
+    raise 'Troop can not move' unless @game_gateway.troop_can_move?(city_name, troop_id)
+  end
+
+  def verify_cities_connected(city_from, city_to, troop_id)
+    raise 'Cities are not connected' unless @game_gateway.cities_connected?(city_from, city_to, troop_id)
+  end
+
+  def ready_to_kill_troops
+    @game_gateway.start_killing_troops
+  end
+
+  def verify_killing_troops
+    raise 'Not time to kill troops' unless @game_gateway.killing_troops?
+  end
+
+  def ready_to_conquer_cities
+    @game_gateway.start_conquering
+  end
+
+  def verify_conquering_cities
+    raise 'Not time to conquer cities' unless @game_gateway.conquering?
+  end
+
   def ready_to_found_cities
     @game_gateway.ready_to_found_cities
   end
 
   def verify_city_unowned(city_name)
     raise "#{city_name} is already owned" unless @game_gateway.owner_of(city_name).nil?
+  end
+
+  def verify_player_has_troop_on_city(city_name, player_id)
+    raise "You must have a troop in #{city_name} to build a city" unless @game_gateway.has_troop_in_city?(city_name, player_id)
   end
 
   def ready_to_claim_great_people

@@ -50,6 +50,7 @@ gem 'rails-backbone'
 gem 'jquery-minicolors-rails'
 gem 'js-routes'
 gem 'jquery-ui-rails'
+gem 'therubyracer'
 
 group :test do
   gem 'rspec-rails'
