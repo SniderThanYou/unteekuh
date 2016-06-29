@@ -22,6 +22,7 @@ class GameInteractor
     @game_gateway.set_starting_rondel_positions
     @game_gateway.set_starting_techs
     @game_gateway.start_playing
+    @game_gateway.next_turn
   end
 
   def verify_user_turn(user_id)
@@ -82,6 +83,7 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_arming
     verify_player_owns_city(player_id, city_name)
+    verify_player_has_extra_footman(player_id)
     verify_city_supports_footmen(city_name)
     verify_more_troops_can_be_added_this_turn(city_name)
     @game_gateway.subtract_resources_from_player(player_id, {iron: 1})
@@ -92,6 +94,7 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_arming
     verify_player_owns_city(player_id, city_name)
+    verify_player_has_extra_boat(player_id)
     verify_city_supports_boats(city_name)
     verify_more_troops_can_be_added_this_turn(city_name)
     @game_gateway.subtract_resources_from_player(player_id, {iron: 1})
@@ -110,7 +113,7 @@ class GameInteractor
     verify_player_does_not_own_tech(player_id, tech_name)
     verify_player_has_prerequisite_tech(player_id, tech_name)
     g = @game_gateway.gold_cost_of_tech(tech_name)
-    first = @game_gateway.tech_owned_by_any_players?(tech_name)
+    first = @game_gateway.tech_unowned_by_any_players?(tech_name)
     @game_gateway.subtract_resources_from_player(player_id, {gold: g})
     @game_gateway.research_tech(player_id, tech_name)
     @game_gateway.claim_great_scholar(player_id) if first
@@ -169,6 +172,7 @@ class GameInteractor
     verify_player_turn(player_id)
     verify_founding_cities
     verify_city_unowned(city_name)
+    verify_player_has_extra_city(player_id)
     verify_player_has_troop_on_city(city_name, player_id)
     @game_gateway.subtract_resources_from_player(player_id, {gold: 1, marble: 1, iron: 1})
     @game_gateway.found_city(city_name, player_id)
@@ -254,12 +258,20 @@ class GameInteractor
     raise 'Not time to arm' unless @game_gateway.arming?
   end
 
+  def verify_player_has_extra_footman(player_id)
+    raise 'You have no extra footmen' unless @game_gateway.player_has_extra_footman?(player_id)
+  end
+
   def verify_city_supports_footmen(city_name)
-    raise "you can not arm footmen in #{city_name}" unless @game_gateway.city_supports_footmen?(city_name)
+    raise "You can not arm footmen in #{city_name}" unless @game_gateway.city_supports_footmen?(city_name)
+  end
+
+  def verify_player_has_extra_boat(player_id)
+    raise 'You have no extra boats' unless @game_gateway.player_has_extra_boat?(player_id)
   end
 
   def verify_city_supports_boats(city_name)
-    raise "you can not arm boats in #{city_name}" unless @game_gateway.city_supports_boats?(city_name)
+    raise "You can not arm boats in #{city_name}" unless @game_gateway.city_supports_boats?(city_name)
   end
 
   def verify_more_troops_can_be_added_this_turn(city_name)
@@ -318,6 +330,10 @@ class GameInteractor
 
   def verify_city_unowned(city_name)
     raise "#{city_name} is already owned" unless @game_gateway.owner_of(city_name).nil?
+  end
+
+  def verify_player_has_extra_city(player_id)
+    raise 'You have no extra cities' unless @game_gateway.player_has_extra_city?(player_id)
   end
 
   def verify_player_has_troop_on_city(city_name, player_id)

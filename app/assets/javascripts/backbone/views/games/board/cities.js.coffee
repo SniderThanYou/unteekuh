@@ -30,6 +30,14 @@ class Unteekuh.Views.Games.CitiesView extends Backbone.View
         city = @nameOfCity(evt.stageX, evt.stageY)
         if confirm("Build temple in " + city + "?")
           @game.buildTemple(ownerId, city)
+    
+    if @game.inArming() && @game.currentPlayerId() == ownerId
+      shape.on 'mousedown', (evt) =>
+        city = @nameOfCity(evt.stageX, evt.stageY)
+        if confirm("Build FOOTMAN in " + city + "?")
+          @game.armFootman(ownerId, city)
+        else if confirm("Build BOAT in " + city + "?")
+          @game.armBoat(ownerId, city)
 
   addTempleToCity: (stage, x, y) ->
     shape = new createjs.Shape()

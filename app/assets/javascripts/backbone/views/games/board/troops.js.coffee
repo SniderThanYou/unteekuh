@@ -17,7 +17,8 @@ class Unteekuh.Views.Games.TroopsView extends Backbone.View
       if troops
         pts = @circularPoints(troops.length, cityCoord.x, cityCoord.y)
         for pt, i in pts
-          color = @game.playerColor(troops[i].owner_id)
+          console.log(troops[i])
+          color = @game.playerColor(troops[i].owner)
           if troops[i].troop_type == 'legion'
             @addLegion(stage, color, pt.x, pt.y)
           else if troops[i].troop_type == 'galley'

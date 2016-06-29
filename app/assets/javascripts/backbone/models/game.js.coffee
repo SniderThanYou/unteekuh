@@ -55,6 +55,16 @@ class Unteekuh.Models.Game extends Backbone.Model
     data = {}
     @sendCommandAndFetch(url, data)
 
+  armFootman: (playerId, city) ->
+    url = Routes.arm_footman_game_player(@id, playerId, city)
+    data = {}
+    @sendCommandAndFetch(url, data)
+
+  armBoat: (playerId, city) ->
+    url = Routes.arm_boat_game_player(@id, playerId, city)
+    data = {}
+    @sendCommandAndFetch(url, data)
+
   doneArming: ->
     url = Routes.done_arming_game_player(@id, @currentPlayerId())
     data = {}

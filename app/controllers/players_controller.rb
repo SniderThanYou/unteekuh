@@ -87,7 +87,7 @@ class PlayersController < ApplicationController
   end
 
   def arm_boat
-    interactor.arm_footman(params[:id], params[:city])
+    interactor.arm_boat(params[:id], params[:city])
     render nothing: true
   end
 
@@ -119,7 +119,6 @@ class PlayersController < ApplicationController
 
   def interactor
     @interactor ||= GameInteractor.new(params[:game_id])
-    @interactor
   end
 
   def player_params

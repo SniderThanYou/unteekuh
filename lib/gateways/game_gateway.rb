@@ -184,7 +184,7 @@ class GameGateway
 ###              know how action
 ########################################################
 
-  def tech_owned_by_any_players?(tech_name)
+  def tech_unowned_by_any_players?(tech_name)
     tech_by_name(tech_name).owners.empty?
   end
 
@@ -236,12 +236,22 @@ class GameGateway
 ###              arming action
 ########################################################
 
+  def player_has_extra_footman?(player_id)
+    find_player_by_id(player_id).legion_pool > 0
+  end
+
   def city_supports_footmen?(city_name)
-    !tile_by_name(city_name).ground_connections[city_name].nil?
+    ground_connections = tile_by_name(city_name).ground_connections
+    !ground_connections.nil? && !ground_connections.empty?
+  end
+
+  def player_has_extra_boat?(player_id)
+    find_player_by_id(player_id).galley_pool > 0
   end
 
   def city_supports_boats?(city_name)
-    !tile_by_name(city_name).water_connections[city_name].nil?
+    water_connections = tile_by_name(city_name).water_connections
+    !water_connections.nil? && !water_connections.empty?
   end
 
   def arm_footman(city_name, player_id)
@@ -355,6 +365,10 @@ class GameGateway
     tile_by_name(city_name).troops.any? { |troop| troop.owner == player_id }
   end
 
+  def player_has_extra_city?(player_id)
+    find_player_by_id(player_id).city_pool > 0
+  end
+
   def found_city(city_name, player_id)
     tile = tile_by_name(city_name)
     tile.owner = player_id
@@ -379,7 +393,7 @@ class GameGateway
 
   def num_seas_sailed(player_id)
     find_by_id.tiles.to_a.count do |tile|
-      tile.boats.include? player_id
+      tile.troops.any? {|troop| troop.troop_type == 'boat' && troop.owner == player_id}
     end
   end
 
